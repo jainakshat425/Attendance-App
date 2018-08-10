@@ -1,4 +1,4 @@
-package com.example.android.attendance;
+package com.example.android.attendance.data;
 
 import android.content.ContentResolver;
 import android.net.Uri;
