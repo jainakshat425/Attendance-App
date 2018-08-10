@@ -24,6 +24,15 @@ public class StudentContract {
         public static final String S_SEMESTER_COL = "std_semester";
         public static final String S_COLLEGE_COL = "std_college";
         public static final String S_BRANCH_COL = "std_branch";
-        public static final String s_SECTION_COL = "std_section";
+        public static final String S_SECTION_COL = "std_section";
+
+        public static final int COLLEGE_GIT = 0;
+        public static final int COLLEGE_GCT = 1;
+
+        public static final int BRANCH_CS = 0;
+        public static final int BRANCH_ME = 1;
+        public static final int BRANCH_IT = 2;
+        public static final int BRANCH_EC = 3;
+        public static final int BRANCH_CE = 4;
     }
 }
