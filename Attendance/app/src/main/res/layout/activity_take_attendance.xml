@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TakeAttendanceActivity">
+
+    <RelativeLayout
+        android:id="@+id/details_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/college_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GIT"
+            android:textAllCaps="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/semester_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="V Sem"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/branch_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CS"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/college_text_view"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/section_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="'A'"
+            android:layout_marginLeft="4dp"
+            android:layout_toRightOf="@id/branch_text_view"
+            android:layout_below="@id/college_text_view"/>
+
+
+        <TextView
+            android:id="@+id/subject_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADS"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/semester_text_view"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/date_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thursday, 07-08-2018"
+            android:layout_below="@id/subject_text_view"
+           />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/view_separator"
+        android:layout_width="300dp"
+        android:layout_height="1dp"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/details_container"
+        android:layout_marginBottom="8dp"/>
+
+    <ListView
+        android:id="@+id/students_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_separator"/>
+</RelativeLayout>

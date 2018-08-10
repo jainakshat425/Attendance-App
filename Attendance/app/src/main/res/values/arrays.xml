@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- array containing name of 'subjects' for spinner -->
+    <string-array name="subjects_array">
+        <item>Subject</item>
+        <item>ADS</item>
+        <item>CA</item>
+        <item>TEF</item>
+        <item>OS</item>
+        <item>DHD</item>
+    </string-array>
+
+    <!-- array containing 'semester' for spinner -->
+    <string-array name="semester_array">
+        <item>Semester</item>
+        <item>I</item>
+        <item>II</item>
+        <item>III</item>
+        <item>IV</item>
+        <item>V</item>
+        <item>VI</item>
+        <item>VII</item>
+        <item>VIII</item>
+    </string-array>
+
+    <!-- array containing name of branches for spinner -->
+    <string-array name="branch_array">
+        <item>Branch</item>
+        <item>CS</item>
+        <item>IT</item>
+        <item>ME</item>
+        <item>EC</item>
+        <item>CE</item>
+    </string-array>
+
+    <!-- array containing sections for spinner -->
+    <string-array name="section_array">
+        <item>Section</item>
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+        <item>D</item>
+        <item>E</item>
+        <item>F</item>
+    </string-array>
+</resources>

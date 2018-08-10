@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewAttendanceActivity">
+
+    <!-- Date  -->
+    <LinearLayout
+        android:id="@+id/date_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="Date" />
+
+        <!-- input field -->
+        <EditText
+            android:id="@+id/edit_date"
+            style="@style/EditorFieldStyle"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="dd-mm-yyyy"
+            android:inputType="date" />
+    </LinearLayout>
+
+   <!-- Spinners category -->
+    <LinearLayout
+        android:id="@+id/spinner_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/date_layout">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="Select" />
+
+        <LinearLayout
+            android:id="@+id/semester_branch_layout"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/date_layout">
+
+            <!-- semester field -->
+            <Spinner
+                android:id="@+id/semester_spinner"
+                style="@style/SpinnerStyle" />
+            <!-- branch field -->
+            <Spinner
+                android:id="@+id/branch_spinner"
+                style="@style/SpinnerStyle"/>
+            <!-- subject field -->
+            <Spinner
+                android:id="@+id/subject_spinner"
+                style="@style/SpinnerStyle" />
+            <!-- section field -->
+            <Spinner
+                android:id="@+id/section_spinner"
+                style="@style/SpinnerStyle" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- switch layout -->
+    <RelativeLayout
+        android:id="@+id/switch_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_below="@id/spinner_layout">
+
+        <Switch
+            android:id="@+id/college_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:showText="false"
+            android:textOff="GIT"
+            android:textOn="GCT"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/college_switch"
+            android:paddingTop="4dp"
+            android:text="GIT" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/college_switch"
+            android:paddingTop="4dp"
+            android:text="GCT" />
+    </RelativeLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_new_attendance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/baseline_done_white_24"/>
+
+</RelativeLayout>

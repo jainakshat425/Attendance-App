@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
+
+    <TextView
+        android:id="@+id/name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Akshat Jain"
+        android:textColor="#000"
+        android:textSize="16sp"
+        android:layout_marginBottom="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        />
+
+    <TextView
+        android:id="@+id/roll_no_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="16EGJCS017"
+        android:padding="1dp"
+        android:layout_below="@id/name_text_view"
+        android:layout_alignParentLeft="true"/>
+
+    <Switch
+        android:id="@+id/present_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:showText="true"
+        android:textOff="A"
+        android:textOn="P"
+        android:switchTextAppearance="@style/SwitchTextStyle"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/plus_note_image"
+        android:layout_marginRight="16dp"/>
+
+    <ImageView
+        android:id="@+id/plus_note_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/round_add_black_36"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        />
+</RelativeLayout>
