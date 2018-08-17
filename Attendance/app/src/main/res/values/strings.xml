@@ -9,4 +9,6 @@
     <string name="pick_date">Pick Date</string>
     <string name="subject">Subject</string>
     <string name="semester">Semester</string>
+    <string name="college_gct">GCT</string>
+    <string name="college_git">GIT</string>
 </resources>

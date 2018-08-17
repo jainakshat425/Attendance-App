@@ -20,7 +20,7 @@
             android:id="@+id/college_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="GIT"
+            tools:text="GIT"
             android:textAllCaps="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
@@ -30,7 +30,7 @@
             android:id="@+id/semester_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="V Sem"
+            tools:text="V Sem"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="4dp"/>
@@ -39,7 +39,7 @@
             android:id="@+id/branch_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CS"
+            tools:text="CS"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/college_text_view"
             android:layout_marginBottom="4dp"/>
@@ -48,7 +48,7 @@
             android:id="@+id/section_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="'A'"
+            tools:text="'A'"
             android:layout_marginLeft="4dp"
             android:layout_toRightOf="@id/branch_text_view"
             android:layout_below="@id/college_text_view"/>
@@ -58,7 +58,7 @@
             android:id="@+id/subject_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ADS"
+            tools:text="ADS"
             android:layout_alignParentRight="true"
             android:layout_below="@id/semester_text_view"
             android:layout_marginBottom="4dp"/>
@@ -67,7 +67,7 @@
             android:id="@+id/date_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thursday, 07-08-2018"
+            tools:text="Thursday, 07-08-2018"
             android:layout_below="@id/subject_text_view"
            />
 
@@ -83,7 +83,7 @@
         android:layout_marginBottom="8dp"/>
 
     <ListView
-        android:id="@+id/students_list"
+        android:id="@+id/students_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/view_separator"/>

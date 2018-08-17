@@ -1,6 +1,9 @@
 package com.example.android.attendance;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.android.attendance.data.DatabaseHelper;
+import com.example.android.attendance.data.FacultyContract.FacultyEntry;
+
+import java.io.IOException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -17,6 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView needHelpLink;
 
     private int attempts = 5;
+    private  DatabaseHelper myDbHelper;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,24 +54,48 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(Intent.createChooser(needHelpIntent,"Send Email..."));
             }
         });
+
+
+        myDbHelper = new DatabaseHelper(this);
+
+        try {
+            myDbHelper.createDataBase();
+        } catch (IOException ioe) {
+            throw new Error("Unable to create database");
+        }
+
+
     }
 
     private void login() {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        if (username.equals(" ") && password.equals(" ")) {
-            Toast.makeText(this, R.string.toast_login_successful,Toast.LENGTH_SHORT).show();
+        SQLiteDatabase db;
+        try {
+            db = myDbHelper.openDataBase();
+        } catch (SQLException sqle) {
+            throw sqle;
+        }
+
+        String selection = FacultyEntry.F_USERID_COL + "=?" + " and " +
+                FacultyEntry.F_PASSWORD_COL + "=?";
+        String[] selectionArgs = {username, password};
+        Cursor cursor = db.query(FacultyEntry.TABLE_NAME, null, selection, selectionArgs,
+                null,null,null);
+
+        if ( cursor == null || !cursor.moveToFirst()) {
+            Toast.makeText(this,"Account doesn't Exist", Toast.LENGTH_SHORT ).show();
+            cursor.close();
+        }
+        else {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(FacultyEntry.F_NAME_COL));
+            String dept = cursor.getString(cursor.getColumnIndexOrThrow
+                    (FacultyEntry.F_DEPARTMENT_COL));
+            Toast.makeText(this,name + " " + dept, Toast.LENGTH_SHORT).show();
             Intent mainIntent = new Intent();
             mainIntent.setClass(this,MainActivity.class);
             startActivity(mainIntent);
-        } else {
-            if (attempts > 0) {
-                attempts--;
-            } else {
-                loginButton.setClickable(false);
-            }
-            Toast.makeText(this,"Attempts Left: "+attempts,Toast.LENGTH_SHORT).show();
         }
     }
 }
