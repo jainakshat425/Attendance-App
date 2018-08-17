@@ -2,19 +2,23 @@ package com.example.android.attendance;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import com.example.android.attendance.data.DatabaseHelper;
+import com.example.android.attendance.data.SubjectContract.SubjectEntry;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,15 +72,20 @@ public class NewAttendanceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_attendance);
 
+
+        //setup all spinners
         setupSemesterSpinner();
         setupBranchSpinner();
         setupSectionSpinner();
         setupSubjectSpinner();
 
+        //setup fab button for TakeAttendanceActivity
         setupFabButton();
 
+        //setup date picker dialog
         setupDatePickerDialog();
 
+        //setup switch for selection of college
         collegeSwitch = findViewById(R.id.college_switch);
         collegeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -141,16 +150,18 @@ public class NewAttendanceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if ( allInputsValid() ) {
+                if (allInputsValid()) {
                     Intent takeAttendanceIntent = new Intent();
                     takeAttendanceIntent.setClass(NewAttendanceActivity.this,
                             TakeAttendanceActivity.class);
-                    takeAttendanceIntent.putExtra("EXTRA_DATE",currentDateString);
-                    takeAttendanceIntent.putExtra("EXTRA_SEMESTER",semesterSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_BRANCH",branchSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_SECTION",sectionSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_SUBJECT",subjectSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_COLLEGE",collegeSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_DATE", currentDateString);
+                    takeAttendanceIntent.putExtra("EXTRA_SEMESTER", semesterSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_BRANCH", branchSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_SECTION", sectionSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_SUBJECT", subjectSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_COLLEGE", collegeSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
+                            getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
                     startActivity(takeAttendanceIntent);
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
@@ -160,9 +171,12 @@ public class NewAttendanceActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * check all inputs are valid or not
+     */
     private boolean allInputsValid() {
-        if ( currentDateString == null || semesterSelected == null || branchSelected == null ||
-                subjectSelected == null || sectionSelected == null ) {
+        if (currentDateString == null || semesterSelected == null || branchSelected == null ||
+                subjectSelected == null || sectionSelected == null) {
             return false;
         }
         return true;
@@ -173,24 +187,72 @@ public class NewAttendanceActivity extends AppCompatActivity {
      */
     private void setupSubjectSpinner() {
 
-        String[] subjectArray = getResources().getStringArray(R.array.subjects_array);
         subjectSpinner = (Spinner) findViewById(R.id.subject_spinner);
-        subjectAdapter = new SpinnerArrayAdapter(this,
-                android.R.layout.simple_spinner_dropdown_item, subjectArray);
-        subjectSpinner.setAdapter(subjectAdapter);
-        subjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0) {
-                    subjectSelected = parent.getItemAtPosition(position).toString();
+        if (semesterSelected != null && branchSelected != null) {
+            /**
+             * open the database for populating the spinner with subjects according to semester and
+             * branch
+             */
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            SQLiteDatabase db;
+            try {
+                db = databaseHelper.openDataBaseReadOnly();
+            } catch (SQLException sqle) {
+                throw sqle;
+            }
+            /**
+             * query the database and store result in cursor
+             */
+            String[] projection = {SubjectEntry.SUB_NAME_COL};
+            String selection = SubjectEntry.SUB_SEMESTER_COL + "=?" + " and "
+                    + SubjectEntry.SUB_BRANCH_COL + "=?";
+            String[] selectionArgs = {semesterSelected, branchSelected};
+
+            Cursor subjectCursor = db.query(SubjectEntry.TABLE_NAME, projection, selection,
+                    selectionArgs, null, null, null);
+
+            String[] subject;
+            if (subjectCursor.getCount() > 0 && subjectCursor.moveToFirst()) {
+                subject = new String[subjectCursor.getCount() + 1];
+                subject[0] = "Subject";
+                subjectCursor.moveToFirst();
+                for (int i = 1; !subjectCursor.isAfterLast(); i++) {
+                    subject[i] = subjectCursor.getString(
+                            subjectCursor.getColumnIndex(SubjectEntry.SUB_NAME_COL));
+                    subjectCursor.moveToNext();
                 }
-            }
+                subjectAdapter = new SpinnerArrayAdapter(this,
+                        android.R.layout.simple_spinner_dropdown_item, subject);
+                subjectSpinner.setAdapter(subjectAdapter);
+                subjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        if (position != 0) {
+                            subjectSelected = parent.getItemAtPosition(position).toString();
+                        }
+                    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
 
+                    }
+                });
+            } else {
+                emptySubjectSpinner();
             }
-        });
+        } else {
+           emptySubjectSpinner();
+        }
+    }
+
+    /**
+     * empties the subject spinner
+     */
+    private void emptySubjectSpinner() {
+        String[] subject = {"Subject"};
+        subjectAdapter = new SpinnerArrayAdapter(this,
+                android.R.layout.simple_spinner_dropdown_item, subject);
+        subjectSpinner.setAdapter(subjectAdapter);
     }
 
     /**
@@ -207,6 +269,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != 0) {
                     semesterSelected = parent.getItemAtPosition(position).toString();
+                    setupSubjectSpinner();
                 }
             }
 
@@ -257,6 +320,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != 0) {
                     branchSelected = parent.getItemAtPosition(position).toString();
+                    setupSubjectSpinner();
                 }
             }
 

@@ -73,12 +73,12 @@ public class LoginActivity extends AppCompatActivity {
 
         SQLiteDatabase db;
         try {
-            db = myDbHelper.openDataBase();
+            db = myDbHelper.openDataBaseReadOnly();
         } catch (SQLException sqle) {
             throw sqle;
         }
 
-        String selection = FacultyEntry.F_USERID_COL + "=?" + " and " +
+        String selection = FacultyEntry.F_USER_ID_COL + "=?" + " and " +
                 FacultyEntry.F_PASSWORD_COL + "=?";
         String[] selectionArgs = {username, password};
         Cursor cursor = db.query(FacultyEntry.TABLE_NAME, null, selection, selectionArgs,
@@ -92,9 +92,14 @@ public class LoginActivity extends AppCompatActivity {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(FacultyEntry.F_NAME_COL));
             String dept = cursor.getString(cursor.getColumnIndexOrThrow
                     (FacultyEntry.F_DEPARTMENT_COL));
-            Toast.makeText(this,name + " " + dept, Toast.LENGTH_SHORT).show();
+            String userId = cursor.getString(cursor.getColumnIndexOrThrow
+                    (FacultyEntry.F_USER_ID_COL));
+
             Intent mainIntent = new Intent();
             mainIntent.setClass(this,MainActivity.class);
+            mainIntent.putExtra("EXTRA_FACULTY_NAME",name);
+            mainIntent.putExtra("EXTRA_FACULTY_USER_ID",userId);
+            mainIntent.putExtra("EXTRA_FACULTY_DEPARTMENT",dept);
             startActivity(mainIntent);
         }
     }

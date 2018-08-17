@@ -18,6 +18,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     private static String DB_NAME = "Attendance.db";
 
+    private static int DB_VERSION = 1;
+
     private SQLiteDatabase myDataBase;
 
     private final Context myContext;
@@ -29,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
      */
     public DatabaseHelper(Context context) {
 
-        super(context, DB_NAME, null, 1);
+        super(context, DB_NAME, null, DB_VERSION);
         this.myContext = context;
     }
 
@@ -118,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 
     }
 
-    public SQLiteDatabase openDataBase() throws SQLException {
+    public SQLiteDatabase openDataBaseReadOnly() throws SQLException {
 
         //Open the database
         String myPath = DB_PATH + DB_NAME;
@@ -126,7 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         return myDataBase;
     }
 
-    public SQLiteDatabase openDatabaseForUpdate() throws SQLException {
+    public SQLiteDatabase openDatabaseForReadWrite() throws SQLException {
 
         String myPath = DB_PATH + DB_NAME;
         myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);

@@ -5,11 +5,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:id="@+id/faculty_details">
+    <TextView
+        android:id="@+id/fac_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Teacher"/>
+    <TextView
+        android:id="@+id/fac_user_id_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="teacher@gtc"/>
+    <TextView
+        android:id="@+id/fac_dept_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="CS"/>
+    </LinearLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/faculty_details">
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_main_activity"
