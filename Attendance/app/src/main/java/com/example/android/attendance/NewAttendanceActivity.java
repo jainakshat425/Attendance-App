@@ -1,5 +1,6 @@
 package com.example.android.attendance;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -96,6 +97,14 @@ public class NewAttendanceActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == Activity.RESULT_OK){
+            setResult(Activity.RESULT_OK, data);
+            finish();
+        }
+    }
+
     /**
      * opens date picker dialog when editText is clicked
      */
@@ -162,7 +171,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
                     takeAttendanceIntent.putExtra("EXTRA_COLLEGE", collegeSelected);
                     takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
                             getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
-                    startActivity(takeAttendanceIntent);
+                    startActivityForResult(takeAttendanceIntent,2);
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
                             Toast.LENGTH_SHORT).show();
