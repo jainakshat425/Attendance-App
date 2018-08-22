@@ -15,9 +15,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.attendance.data.AttendanceContract;
+import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
 import com.example.android.attendance.data.DatabaseHelper;
 import com.example.android.attendance.data.AttendanceContract.AttendanceEntry;
 import com.example.android.attendance.data.StudentContract.StudentEntry;
+
 
 public class TakeAttendanceActivity extends AppCompatActivity {
 
@@ -32,12 +35,8 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     private TakeAttendanceAdapter takeAttendanceAdapter;
     private DatabaseHelper databaseHelper;
 
-    private String[] attendanceProjection;
-    private String ATTENDANCE_TABLE;
-    private String attendanceColumn;
+    private Bundle bundle;
 
-    Bundle bundle;
-    Bundle returnBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +51,16 @@ public class TakeAttendanceActivity extends AppCompatActivity {
          * get data from intent i.e. the activity which called this..
          */
         bundle = getIntent().getExtras();
-        int college = bundle.getInt("EXTRA_COLLEGE", -1);
+        String college = bundle.getString("EXTRA_COLLEGE");
         String date = bundle.getString("EXTRA_DATE");
+        String day = bundle.getString("EXTRA_DAY");
         String semester = bundle.getString("EXTRA_SEMESTER");
         String branch = bundle.getString("EXTRA_BRANCH");
         String section = bundle.getString("EXTRA_SECTION");
         String subject = bundle.getString("EXTRA_SUBJECT");
         String facUserId = bundle.getString("EXTRA_FACULTY_USER_ID");
 
-        String collegeString = (college == 1) ? getString(R.string.college_gct)
+        String collegeString = (Integer.parseInt(college) == 1) ? getString(R.string.college_gct)
                 : getString(R.string.college_git);
 
         /**
@@ -71,7 +71,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         branchTv.setText(branch);
         sectionTv.setText(section);
         subjectTv.setText(subject);
-        dateTv.setText(date);
+        dateTv.setText(day + ", " + date);
 
         /**
          * open the database for getting the table of Students for Attendance
@@ -81,28 +81,30 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         try {
             db = databaseHelper.openDatabaseForReadWrite();
         } catch (SQLException sqle) {
+            Log.e("TakeAttendanceActivity","error opening database " ,sqle);
             throw sqle;
         }
 
-        if ( bundle.containsKey("EXTRA_TABLE_NAME") &&
+        if (bundle.containsKey("EXTRA_TABLE_NAME") &&
                 bundle.containsKey("EXTRA_ATTENDANCE_PROJECTION") &&
                 bundle.containsKey("EXTRA_ATTENDANCE_COLUMN")) {
 
             String existingTable = bundle.getString("EXTRA_TABLE_NAME");
-            String[] existingProjection =  bundle.getStringArray("EXTRA_ATTENDANCE_PROJECTION");
+            String[] existingProjection = bundle.getStringArray("EXTRA_ATTENDANCE_PROJECTION");
             String existingAttendanceColumn = bundle.getString("EXTRA_ATTENDANCE_COLUMN");
-
+            String orderBy = AttendanceEntry.ROLL_NO_COL + " ASC";
             Cursor cursor = db.query(existingTable, existingProjection, null,
-                    null,null,null,null);
+                    null, null, null, orderBy);
 
             takeAttendanceAdapter = new TakeAttendanceAdapter(this, cursor,
                     existingTable, existingAttendanceColumn);
             stdListView.setAdapter(takeAttendanceAdapter);
 
-        } else if (college != -1 && semester != null && branch != null && section != null) {
+        } else if(collegeString != null && semester != null && branch != null && section != null){
 
             //build name for table
-            ATTENDANCE_TABLE = collegeString + "_" + semester + "_" + branch + "_" + section;
+            String ATTENDANCE_TABLE = collegeString + "_" + semester + "_" + branch + "_" + section;
+            bundle.putString("EXTRA_TABLE_NAME", ATTENDANCE_TABLE);
 
             /**
              *  check table if exist or not
@@ -120,16 +122,20 @@ public class TakeAttendanceActivity extends AppCompatActivity {
              */
             if (subject != null || date != null || facUserId != null) {
 
-                attendanceColumn = addNewAttendanceColumn(db,
+                String attendanceColumn = addNewAttendanceColumn(db,
                         ATTENDANCE_TABLE, subject, date, facUserId);
 
-                attendanceProjection = new String[] {AttendanceEntry._ID, AttendanceEntry.NAME_COL,
+                bundle.putString("EXTRA_ATTENDANCE_COLUMN", attendanceColumn);
+
+                String[] attendanceProjection = new String[]{AttendanceEntry._ID, AttendanceEntry.NAME_COL,
                         AttendanceEntry.ROLL_NO_COL, attendanceColumn};
-
+                String orderBy = AttendanceEntry.ROLL_NO_COL + " ASC";
                 Cursor cursor = db.query(ATTENDANCE_TABLE, attendanceProjection, null,
-                        null, null, null, null);
+                        null, null, null, orderBy);
 
-                if ( cursor.getColumnIndex(attendanceColumn) != -1) {
+                bundle.putInt("EXTRA_TOTAL_STUDENTS", cursor.getCount());
+
+                if (cursor.getColumnIndex(attendanceColumn) != -1) {
                     takeAttendanceAdapter = new TakeAttendanceAdapter(this, cursor,
                             ATTENDANCE_TABLE, attendanceColumn);
                     stdListView.setAdapter(takeAttendanceAdapter);
@@ -141,9 +147,6 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                 Log.e("TakeAttendanceActivity", "Column name issue");
             }
-        } else {
-            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
-            Log.e("TakeAttendanceActivity", "Table name issue");
         }
     }
 
@@ -158,13 +161,14 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         stdListView = findViewById(R.id.students_list_view);
     }
 
-    private void createTableWithData(SQLiteDatabase db, String ATTENDANCE_TABLE, int college,
+    private void createTableWithData(SQLiteDatabase db, String newTableName, String college,
                                      String semester, String branch, String section) {
         //CREATE Table
-        String CREATE_NEW_TABLE = "CREATE TABLE " + ATTENDANCE_TABLE + "("
+        String CREATE_NEW_TABLE = "CREATE TABLE " + newTableName + "("
                 + AttendanceEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + AttendanceEntry.NAME_COL + " TEXT NOT NULL, "
-                + AttendanceEntry.ROLL_NO_COL + " TEXT NOT NULL UNIQUE)";
+                + AttendanceEntry.ROLL_NO_COL + " TEXT NOT NULL UNIQUE, "
+                + AttendanceEntry.TOTAL_ATTENDANCE_COL + " INTEGER)";
         db.execSQL(CREATE_NEW_TABLE);
 
         /**
@@ -175,7 +179,8 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 + StudentEntry.S_SEMESTER_COL + "=?" + " and "
                 + StudentEntry.S_BRANCH_COL + "=?" + " and "
                 + StudentEntry.S_SECTION_COL + "=?";
-        String[] selectionArgs = {String.valueOf(college), semester, branch, section};
+        String[] selectionArgs = {college, semester, branch, section};
+
         Cursor studentData = db.query(StudentEntry.TABLE_NAME, stdProjection,
                 selection, selectionArgs, null, null, null);
 
@@ -200,8 +205,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 newStudentValues = new ContentValues();
                 newStudentValues.put(AttendanceEntry.NAME_COL, name);
                 newStudentValues.put(AttendanceEntry.ROLL_NO_COL, rollNo);
-
-                db.insert(ATTENDANCE_TABLE, null, newStudentValues);
+                db.insert(newTableName, null, newStudentValues);
             }
         }
     }
@@ -218,42 +222,33 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                     + NEW_COLUMN + " INTEGER DEFAULT 0;";
             db.execSQL(ADD_ATTENDANCE_COLUMN);
             db.needUpgrade(db.getVersion() + 1);
+            insertAttendanceRecord(db, newTableName, NEW_COLUMN);
+        } else {
+            Toast.makeText(this,"Attendance already Exists", Toast.LENGTH_SHORT).show();
         }
         return NEW_COLUMN;
     }
 
     private boolean columnAlreadyExists(SQLiteDatabase db, String newTableName, String newColumn) {
-        Cursor mCursor = null;
-        try {
-            // Query 1 row
-            mCursor = db.rawQuery("SELECT * FROM " + newTableName + " LIMIT 0", null);
+        String selection = AttendanceRecordEntry.ATTENDANCE_TABLE_COL + "=?" + " and " +
+                AttendanceRecordEntry.ATTENDANCE_COL + "=?";
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME,
+                new String[]{AttendanceRecordEntry._ID},
+                selection,
+                new String[]{newTableName,newColumn}, null, null, null);
 
-            // getColumnIndex() gives us the index (0 to ...) of the column - otherwise we get a -1
-            if (mCursor.getColumnIndex(newColumn) != -1)
-                return true;
-            else
-                return false;
-
-        } catch (Exception Exp) {
-            // Something went wrong. Missing the database? The table?
-            Log.d("TakeAttendanceActivity",
-                    "When checking whether a column exists in the table, an error occurred: "
-                            + Exp.getMessage());
-            return false;
-        } finally {
-            if (mCursor != null) mCursor.close();
-        }
+        return (cursor.getCount() > 0);
     }
 
 
     private boolean tableAlreadyExists(SQLiteDatabase db, String newTableName) {
-        try {
-            Cursor tempCursor = db.query(newTableName, null, null, null,
-                    null, null, null);
-        } catch (android.database.sqlite.SQLiteException e) {
-            return false;
-        }
-        return true;
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME,
+                new String[]{AttendanceRecordEntry._ID},
+                AttendanceRecordEntry.ATTENDANCE_TABLE_COL + "=?",
+                new String[]{newTableName}, null, null, null);
+
+        return (cursor.getCount() > 0);
+
     }
 
     @Override
@@ -267,15 +262,62 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.done_take_attendance) {
-            returnBundle = bundle;
-            returnBundle.putString("EXTRA_TABLE_NAME", ATTENDANCE_TABLE);
-            returnBundle.putStringArray("EXTRA_ATTENDANCE_PROJECTION",attendanceProjection);
-            returnBundle.putString("EXTRA_ATTENDANCE_COLUMN",attendanceColumn);
-            Intent returnIntent = new Intent();
-            returnIntent.putExtras(returnBundle);
-            setResult(Activity.RESULT_OK, returnIntent);
+            updateAttendanceRecord();
+            Intent intent = new Intent();
+            intent.putExtra("EXTRA_FACULTY_USER_ID",
+                    bundle.getString("EXTRA_FACULTY_USER_ID"));
+            setResult(Activity.RESULT_OK, intent);
             finish();
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateAttendanceRecord() {
+        SQLiteDatabase db;
+        try {
+            db = databaseHelper.openDatabaseForReadWrite();
+        } catch (SQLException sqle) {
+            Log.e("TakeAttendanceActivity","error opening database " ,sqle);
+            throw sqle;
+        }
+
+        String tableName = bundle.getString("EXTRA_TABLE_NAME");
+        String attendanceColumn = bundle.getString("EXTRA_ATTENDANCE_COLUMN");
+        int totalStudents = bundle.getInt("EXTRA_TOTAL_STUDENTS");
+        ContentValues record = new ContentValues();
+        record.put(AttendanceRecordEntry.STUDENTS_PRESENT_COL,
+                studentsPresent(db, tableName, attendanceColumn));
+        record.put(AttendanceRecordEntry.TOTAL_STUDENTS_COL, totalStudents);
+
+        String where = AttendanceRecordEntry.ATTENDANCE_TABLE_COL + "=?" + " and "
+                + AttendanceRecordEntry.ATTENDANCE_COL + "=?";
+        String[] whereArgs = new String[] {tableName, attendanceColumn};
+
+        int rowUpdated = db.update(AttendanceRecordEntry.TABLE_NAME, record, where, whereArgs);
+        Toast.makeText(this,"Rows Updated: "+rowUpdated,Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void insertAttendanceRecord(SQLiteDatabase db, String newTableName,
+                                        String attendanceColumn) {
+
+        ContentValues record = new ContentValues();
+        record.put(AttendanceRecordEntry.FACULTY_ID_COL,
+                bundle.getString("EXTRA_FACULTY_USER_ID"));
+        record.put(AttendanceRecordEntry.ATTENDANCE_TABLE_COL, newTableName);
+        record.put(AttendanceRecordEntry.ATTENDANCE_COL, attendanceColumn);
+
+        long rowId = db.insert(AttendanceRecordEntry.TABLE_NAME, null, record);
+    }
+
+    private int studentsPresent(SQLiteDatabase db, String newTableName, String attendanceColumn) {
+        String[] projection = {AttendanceEntry._ID, AttendanceEntry.NAME_COL,
+                AttendanceEntry.ROLL_NO_COL, attendanceColumn};
+        String selection = attendanceColumn + "=?";
+        String[] selectionArgs = {String.valueOf(1)};
+        Cursor studentsPresent = db.query(newTableName, projection, selection, selectionArgs,
+                null, null, null);
+        return studentsPresent.getCount();
     }
 }

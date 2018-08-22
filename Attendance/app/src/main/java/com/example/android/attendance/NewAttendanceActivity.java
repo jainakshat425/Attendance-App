@@ -7,8 +7,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
@@ -67,6 +69,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private EditText dateEditText;
     private Calendar myCalendar;
     private String currentDateString = null;
+    private String currentDay = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +108,17 @@ public class NewAttendanceActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home :
+                setResult(Activity.RESULT_CANCELED);
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * opens date picker dialog when editText is clicked
      */
@@ -122,6 +136,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
                 updateLabel();
             }
 
@@ -143,9 +158,12 @@ public class NewAttendanceActivity extends AppCompatActivity {
      * updates the editText with selected date
      */
     private void updateLabel() {
-        String myFormat = "dd-MM-yyyy"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        currentDateString = sdf.format(myCalendar.getTime());
+        String dateFormat = "dd-MM-yyyy"; //In which you need put here
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat, Locale.US);
+        currentDateString = simpleDateFormat.format(myCalendar.getTime());
+
+        SimpleDateFormat simpleDayFormat = new SimpleDateFormat("EEEE", Locale.US);
+        currentDay = simpleDayFormat.format(myCalendar.getTime());
         dateEditText.setText(currentDateString);
     }
 
@@ -164,14 +182,16 @@ public class NewAttendanceActivity extends AppCompatActivity {
                     takeAttendanceIntent.setClass(NewAttendanceActivity.this,
                             TakeAttendanceActivity.class);
                     takeAttendanceIntent.putExtra("EXTRA_DATE", currentDateString);
+                    takeAttendanceIntent.putExtra("EXTRA_DAY", currentDay);
                     takeAttendanceIntent.putExtra("EXTRA_SEMESTER", semesterSelected);
                     takeAttendanceIntent.putExtra("EXTRA_BRANCH", branchSelected);
                     takeAttendanceIntent.putExtra("EXTRA_SECTION", sectionSelected);
                     takeAttendanceIntent.putExtra("EXTRA_SUBJECT", subjectSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_COLLEGE", collegeSelected);
+                    takeAttendanceIntent.putExtra("EXTRA_COLLEGE",
+                            String.valueOf(collegeSelected));
                     takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
                             getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
-                    startActivityForResult(takeAttendanceIntent,2);
+                    startActivityForResult(takeAttendanceIntent,1);
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
                             Toast.LENGTH_SHORT).show();
@@ -338,5 +358,11 @@ public class NewAttendanceActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(Activity.RESULT_CANCELED);
+        super.onBackPressed();
     }
 }

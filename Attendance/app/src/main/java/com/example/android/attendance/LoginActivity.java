@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private TextView needHelpLink;
+    private Button needHelpButton;
 
     private int attempts = 5;
     private  DatabaseHelper myDbHelper;;
@@ -30,12 +33,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_login);
 
         usernameEditText = findViewById(R.id.username_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
         loginButton = findViewById(R.id.login_button);
-        needHelpLink = findViewById(R.id.need_help_link);
+        needHelpButton = findViewById(R.id.need_help_button);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        needHelpLink.setOnClickListener(new View.OnClickListener() {
+        needHelpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent needHelpIntent = new Intent(Intent.ACTION_SEND);

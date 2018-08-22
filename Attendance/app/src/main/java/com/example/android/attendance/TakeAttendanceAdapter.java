@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.Switch;
@@ -50,25 +51,24 @@ public class TakeAttendanceAdapter extends CursorAdapter {
         rollNoTv.setText(rollNo);
 
         int attendanceIndex = cursor.getColumnIndexOrThrow(NEW_COLUMN);
-        final int attendanceState = cursor.getInt(attendanceIndex);
+        int attendanceState = cursor.getInt(attendanceIndex);
 
         int idIndex = cursor.getColumnIndexOrThrow(AttendanceEntry._ID);
-        final int id = cursor.getInt(idIndex);
+        int id = cursor.getInt(idIndex);
 
-        Switch present_switch = (Switch) view.findViewById(R.id.present_switch);
+        CheckBox presentCheckbox = view.findViewById(R.id.present_checkbox);
 
         if (attendanceState == 1) {
-            present_switch.setChecked(true);
+            presentCheckbox.setChecked(true);
         }
-        present_switch.setTag(id);
-        present_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        presentCheckbox.setTag(id);
+
+        presentCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
                 changeAttendanceState(context, buttonView, isChecked);
             }
         });
-
     }
 
     private void changeAttendanceState(Context context, CompoundButton button, boolean isChecked) {

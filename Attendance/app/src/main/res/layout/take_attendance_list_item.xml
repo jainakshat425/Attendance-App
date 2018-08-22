@@ -28,14 +28,10 @@
         android:layout_below="@id/name_text_view"
         android:layout_alignParentLeft="true"/>
 
-    <Switch
-        android:id="@+id/present_switch"
+    <CheckBox
+        android:id="@+id/present_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:showText="true"
-        android:textOff="A"
-        android:textOn="P"
-        android:switchTextAppearance="@style/SwitchTextStyle"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/plus_note_image"
         android:layout_marginRight="16dp"/>

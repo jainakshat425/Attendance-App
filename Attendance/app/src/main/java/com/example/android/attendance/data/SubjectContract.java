@@ -19,6 +19,7 @@ public class SubjectContract {
     public static final String SUB_NAME_COL = "sub_name";
     public static final String SUB_SEMESTER_COL = "sub_semester";
     public static final String SUB_BRANCH_COL = "sub_branch";
+    public static final String SUB_FULL_NAME_COL = "sub_full_name";
 
     }
 }
