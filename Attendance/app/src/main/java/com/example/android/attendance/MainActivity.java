@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private SQLiteDatabase db;
 
+    private static final int MAIN_ACTIVITY_REQUEST_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 newAttendanceIntent.setClass
                         (MainActivity.this, NewAttendanceActivity.class);
                 newAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID", facUserId);
-                startActivityForResult(newAttendanceIntent, 1);
+                startActivityForResult(newAttendanceIntent, MAIN_ACTIVITY_REQUEST_CODE);
             }
         });
     }

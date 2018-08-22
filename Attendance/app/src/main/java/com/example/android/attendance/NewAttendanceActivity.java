@@ -71,6 +71,8 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private String currentDateString = null;
     private String currentDay = null;
 
+    private static final int NEW_ATTENDANCE_REQ_CODE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,7 +193,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
                             String.valueOf(collegeSelected));
                     takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
                             getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
-                    startActivityForResult(takeAttendanceIntent,1);
+                    startActivityForResult(takeAttendanceIntent, NEW_ATTENDANCE_REQ_CODE);
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
                             Toast.LENGTH_SHORT).show();

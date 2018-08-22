@@ -19,6 +19,7 @@ public class MainListCursorAdapter extends CursorAdapter {
 
 
     private Bundle intentBundle;
+    private static final int MAIN_LIST_ADAPTER_REQ_CODE = 3;
 
     public MainListCursorAdapter(Activity context, Cursor cursor) {
         super(context, cursor, 0);
@@ -105,7 +106,9 @@ public class MainListCursorAdapter extends CursorAdapter {
                 Intent takeAttendanceIntent = new Intent();
                 takeAttendanceIntent.setClass(context, TakeAttendanceActivity.class);
                 takeAttendanceIntent.putExtras((Bundle) v.getTag());
-                context.startActivity(takeAttendanceIntent);
+                ((Activity) context).startActivityForResult(takeAttendanceIntent,
+                        MAIN_LIST_ADAPTER_REQ_CODE);
+
             }
         });
 

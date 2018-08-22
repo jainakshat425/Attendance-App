@@ -18,16 +18,20 @@ import android.widget.Toast;
 import com.example.android.attendance.data.AttendanceContract.AttendanceEntry;
 import com.example.android.attendance.data.DatabaseHelper;
 
+import java.util.ArrayList;
+
 public class TakeAttendanceAdapter extends CursorAdapter {
 
-    private String ATTENDANCE_TABLE;
-    private String NEW_COLUMN;
+    private static String ATTENDANCE_TABLE;
+    private static String NEW_COLUMN;
+    private static ArrayList<Integer> attendanceStatesList;
 
     public TakeAttendanceAdapter(Activity context, Cursor cursor, String attendanceTable,
-                                 String newColumn) {
+                                 String newColumn, ArrayList<Integer> attendanceStates) {
         super(context, cursor, 0);
         ATTENDANCE_TABLE = attendanceTable;
         NEW_COLUMN = newColumn;
+        attendanceStatesList = attendanceStates;
     }
 
 
@@ -50,44 +54,61 @@ public class TakeAttendanceAdapter extends CursorAdapter {
         TextView rollNoTv = (TextView) view.findViewById(R.id.roll_no_text);
         rollNoTv.setText(rollNo);
 
-        int attendanceIndex = cursor.getColumnIndexOrThrow(NEW_COLUMN);
-        int attendanceState = cursor.getInt(attendanceIndex);
-
-        int idIndex = cursor.getColumnIndexOrThrow(AttendanceEntry._ID);
-        int id = cursor.getInt(idIndex);
+        int position = cursor.getPosition();
 
         CheckBox presentCheckbox = view.findViewById(R.id.present_checkbox);
 
-        if (attendanceState == 1) {
-            presentCheckbox.setChecked(true);
-        }
-        presentCheckbox.setTag(id);
+        presentCheckbox.setTag(position);
 
-        presentCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        presentCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                changeAttendanceState(context, buttonView, isChecked);
+            public void onClick(View v) {
+                int position = Integer.parseInt(String.valueOf(v.getTag()));
+                /*changeAttendanceState(context, buttonView, isChecked);*/
+                if (attendanceStatesList.get(position) == 1) {
+                    attendanceStatesList.set(position, 0);
+                } else {
+                    attendanceStatesList.set(position, 1);
+                }
+
             }
         });
+        if (attendanceStatesList.get(position) == 1) {
+            presentCheckbox.setChecked(true);
+        } else {
+            presentCheckbox.setChecked(false);
+        }
     }
 
-    private void changeAttendanceState(Context context, CompoundButton button, boolean isChecked) {
+    /*  private void changeAttendanceState(Context context, CompoundButton button, boolean isChecked) {
 
-        int newAttendanceState = isChecked ? 1 : 0;
+          int newAttendanceState = isChecked ? 1 : 0;
 
-        ContentValues values = new ContentValues();
-        values.put(NEW_COLUMN, newAttendanceState);
+          ContentValues values = new ContentValues();
+          values.put(NEW_COLUMN, newAttendanceState);
 
-        DatabaseHelper dbHelper = new DatabaseHelper(context);
-        SQLiteDatabase db = dbHelper.openDatabaseForReadWrite();
+          DatabaseHelper dbHelper = new DatabaseHelper(context);
+          SQLiteDatabase db = dbHelper.openDatabaseForReadWrite();
 
-        String id = String.valueOf(button.getTag());
-        String selection = AttendanceEntry._ID + "=?";
-        String[] selectionArgs = {String.valueOf(id)};
+          String id = String.valueOf(button.getTag());
+          String selection = AttendanceEntry._ID
+                  + "=?";
+          String[] selectionArgs = {String.valueOf(id)};
 
-        int rowUpdated = db.update(ATTENDANCE_TABLE, values, selection, selectionArgs);
-        if (rowUpdated <= 0) {
-            Toast.makeText(context, "Error in Attendance", Toast.LENGTH_SHORT).show();
-        }
+          int rowUpdated = db.update(ATTENDANCE_TABLE, values, selection, selectionArgs);
+          if (rowUpdated <= 0) {
+              Toast.makeText(context, "Error in Attendance", Toast.LENGTH_SHORT).show();
+          }
+      }*/
+    public static int getAttendanceState(int i) {
+        return attendanceStatesList.get(i);
+    }
+
+    public static String getAttendanceColumn() {
+        return NEW_COLUMN;
+    }
+
+    public static String getAttendanceTableName() {
+        return ATTENDANCE_TABLE;
     }
 }
