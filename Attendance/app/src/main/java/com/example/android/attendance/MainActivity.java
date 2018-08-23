@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
@@ -17,11 +18,6 @@ import com.example.android.attendance.data.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String[] PROJECTION = new String[]{AttendanceRecordEntry._ID,
-            AttendanceRecordEntry.ATTENDANCE_TABLE_COL,
-            AttendanceRecordEntry.ATTENDANCE_COL,
-            AttendanceRecordEntry.STUDENTS_PRESENT_COL,
-            AttendanceRecordEntry.TOTAL_STUDENTS_COL};
     private String SELECTION = AttendanceRecordEntry.FACULTY_ID_COL + "=?";
 
     private TextView facNameTv;
@@ -57,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
         mainListView = findViewById(R.id.main_list_view);
 
+        RelativeLayout emptyView = findViewById(R.id.empty_view_main);
+        mainListView.setEmptyView(emptyView);
+
         /**
          * open the database for getting the records of attendance
          */
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, null, SELECTION,
                 new String[]{facUserId}, null, null, null);
 
         cursorAdapter = new MainListCursorAdapter(this, cursor);
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, null, SELECTION,
                 new String[]{intentBundle.getString("EXTRA_FACULTY_USER_ID")},
                 null, null, null);
         cursorAdapter.swapCursor(cursor);

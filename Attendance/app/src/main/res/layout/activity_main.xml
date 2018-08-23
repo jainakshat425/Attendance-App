@@ -60,6 +60,39 @@
             android:layout_height="match_parent" />
     </android.support.v7.widget.CardView>
 
+    <RelativeLayout
+        android:id="@+id/empty_view_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+        <ImageView
+            android:id="@+id/empty_attendance_list_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_emty_attendance_list"
+            android:tint="@color/needHelpButtonColor"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:id="@+id/list_empty_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/empty_attendance_list_iv"
+            android:text="Attendance list is Empty!"
+            android:layout_marginTop="32dp"
+            android:textColor="@color/needHelpButtonColor"
+            android:fontFamily="sans-serif-medium"
+            android:alpha="0.70"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_empty_tv"
+            android:layout_marginTop="4dp"
+            android:text="Click button below to add new Attendance..."
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
+
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_main_activity"
         android:layout_width="wrap_content"

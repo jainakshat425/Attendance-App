@@ -31,6 +31,8 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     private TextView sectionTv;
     private TextView subjectTv;
     private TextView dateTv;
+    private TextView lectureTv;
+    private TextView dayTv;
 
     private ListView stdListView;
     private TakeAttendanceAdapter takeAttendanceAdapter;
@@ -65,6 +67,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         String section = bundle.getString("EXTRA_SECTION");
         String subject = bundle.getString("EXTRA_SUBJECT");
         String facUserId = bundle.getString("EXTRA_FACULTY_USER_ID");
+        String lecture = bundle.getString("EXTRA_LECTURE");
 
         //values which only exist when we activity is launched for updating attendance
         String existingTable = bundle.getString("EXTRA_TABLE_NAME");
@@ -79,11 +82,13 @@ public class TakeAttendanceActivity extends AppCompatActivity {
          * populate the text views with the data from the intent
          */
         collegeTv.setText(collegeString);
-        semesterTv.setText(semester);
         branchTv.setText(branch);
         sectionTv.setText(section);
         subjectTv.setText(subject);
         dateTv.setText(date);
+        dayTv.setText(day + ",");
+        setSemesterTv(semester);
+        setLectureTv(lecture);
 
         /**
          * open the database for getting the table of Students for Attendance
@@ -153,10 +158,10 @@ public class TakeAttendanceActivity extends AppCompatActivity {
             /**
              * ALTER Table
              */
-            if (subject != null || date != null || facUserId != null) {
+            if (subject != null || date != null || lecture != null) {
 
                 String attendanceColumn = addNewAttendanceColumn(ATTENDANCE_TABLE, subject,
-                        date, facUserId);
+                        date, lecture);
 
                 bundle.putString("EXTRA_ATTENDANCE_COLUMN", attendanceColumn);
 
@@ -187,6 +192,30 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         }
     }
 
+    private void setLectureTv(String lecture) {
+        if (Integer.parseInt(lecture) == 1) {
+            lectureTv.setText(lecture + "st Lecture");
+        } else if (Integer.parseInt(lecture) == 2) {
+            lectureTv.setText(lecture + "nd Lecture");
+        } else if (Integer.parseInt(lecture) == 3) {
+            lectureTv.setText(lecture + "rd Lecture");
+        } else {
+            lectureTv.setText(lecture + "th Lecture");
+        }
+    }
+
+    private void setSemesterTv(String semester) {
+        if (Integer.parseInt(semester) == 1) {
+            semesterTv.setText(semester + "st Sem");
+        } else if (Integer.parseInt(semester) == 2) {
+            semesterTv.setText(semester + "nd Sem");
+        } else if (Integer.parseInt(semester) == 3) {
+            semesterTv.setText(semester + "rd Sem");
+        } else {
+            semesterTv.setText(semester + "th Sem");
+        }
+    }
+
 
     private void initializeAllViews() {
         collegeTv = (TextView) findViewById(R.id.college_text_view);
@@ -195,6 +224,8 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         sectionTv = (TextView) findViewById(R.id.section_text_view);
         subjectTv = (TextView) findViewById(R.id.subject_text_view);
         dateTv = (TextView) findViewById(R.id.date_text_view);
+        lectureTv = (TextView) findViewById(R.id.lecure_text_view);
+        dayTv = (TextView) findViewById(R.id.day_text_view);
 
         stdListView = findViewById(R.id.students_list_view);
     }
@@ -256,10 +287,10 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     }
 
     private String addNewAttendanceColumn(String newTableName, String subject, String date,
-                                          String facUserId) {
+                                          String lecture) {
 
         String formattedDate = date.replace("-", "_");
-        String NEW_COLUMN = facUserId + "_" + subject + "_" + formattedDate;
+        String NEW_COLUMN = subject + "_" + lecture + "_" + formattedDate;
 
         if (!columnAlreadyExists(newTableName, NEW_COLUMN)) {
 
@@ -398,10 +429,17 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                                         String attendanceColumn) {
 
         ContentValues record = new ContentValues();
-        record.put(AttendanceRecordEntry.FACULTY_ID_COL,
-                bundle.getString("EXTRA_FACULTY_USER_ID"));
+        record.put(AttendanceRecordEntry.FACULTY_ID_COL, bundle.getString("EXTRA_FACULTY_USER_ID"));
         record.put(AttendanceRecordEntry.ATTENDANCE_TABLE_COL, newTableName);
         record.put(AttendanceRecordEntry.ATTENDANCE_COL, attendanceColumn);
+        record.put(AttendanceRecordEntry.DATE_COL, bundle.getString("EXTRA_DATE"));
+        record.put(AttendanceRecordEntry.BRANCH_COL, bundle.getString("EXTRA_BRANCH"));
+        record.put(AttendanceRecordEntry.COLLEGE_COL, bundle.getString("EXTRA_COLLEGE"));
+        record.put(AttendanceRecordEntry.DAY_COL, bundle.getString("EXTRA_DAY"));
+        record.put(AttendanceRecordEntry.LECTURE_COL, bundle.getString("EXTRA_LECTURE"));
+        record.put(AttendanceRecordEntry.SECTION_COL, bundle.getString("EXTRA_SECTION"));
+        record.put(AttendanceRecordEntry.SEMESTER_COL, bundle.getString("EXTRA_SEMESTER"));
+        record.put(AttendanceRecordEntry.SUBJECT_COL, bundle.getString("EXTRA_SUBJECT"));
 
         long rowId = db.insert(AttendanceRecordEntry.TABLE_NAME, null, record);
     }

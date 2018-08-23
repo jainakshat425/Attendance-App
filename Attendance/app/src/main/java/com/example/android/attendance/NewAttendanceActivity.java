@@ -7,19 +7,24 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.attendance.data.AttendanceRecordContract;
+import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
 import com.example.android.attendance.data.DatabaseHelper;
 import com.example.android.attendance.data.SubjectContract.SubjectEntry;
 
@@ -62,9 +67,11 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private String subjectSelected = null;
 
 
-    //declare switch
+    //declare switch and it's surrounding text views
     private Switch collegeSwitch;
     private int collegeSelected = 0;
+    private TextView gitTv;
+    private TextView gctTv;
 
     //declare date edit text
     private EditText dateEditText;
@@ -72,15 +79,32 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private String currentDateString = null;
     private String currentDay = null;
 
-    private TextView gitTv;
-    private TextView gctTv;
+    //declare buttons and edit text field for lecture selection
+    private EditText lectureEt;
+    private Button plusButton;
+    private Button minusButton;
 
     private static final int TAKE_ATTENDANCE_REQ_CODE = 3;
+
+    DatabaseHelper databaseHelper;
+    SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_attendance);
+
+        /**
+         * open the database for populating the spinner with subjects according to semester and
+         * branch
+         */
+        databaseHelper = new DatabaseHelper(this);
+
+        try {
+            db = databaseHelper.openDataBaseReadOnly();
+        } catch (SQLException sqle) {
+            throw sqle;
+        }
 
 
         //setup all spinners
@@ -95,27 +119,13 @@ public class NewAttendanceActivity extends AppCompatActivity {
         //setup date picker dialog
         setupDatePickerDialog();
 
-        gitTv = (TextView) findViewById(R.id.git_tv);
-        gctTv = (TextView) findViewById(R.id.gct_tv);
+        //setup college switch
+        setupCollegeSwitch();
 
-        //setup switch for selection of college
-        collegeSwitch = findViewById(R.id.college_switch);
-        collegeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                collegeSelected = isChecked ? 1 : 0;
-
-                if ( collegeSelected == 1) {
-                    gctTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-                    gitTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
-                } else {
-                    gctTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
-                    gitTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-                }
-            }
-        });
-
+        //setup lecture chooser
+        setupLectureChooser();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -137,6 +147,72 @@ public class NewAttendanceActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * setup lecture chooser
+     */
+    private void setupLectureChooser() {
+        lectureEt = findViewById(R.id.lecture_et);
+        plusButton = findViewById(R.id.plus_lecture_button);
+        minusButton = findViewById(R.id.minus_lecture_button);
+
+        lectureEt.setText("1");
+        minusButton.setEnabled(false);
+
+        plusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int currentLectureValue = Integer.parseInt(lectureEt.getText().toString());
+                if (currentLectureValue < 8) {
+                    lectureEt.setText(String.valueOf(++currentLectureValue));
+                    plusButton.setEnabled(true);
+                } else {
+                    plusButton.setEnabled(false);
+                }
+                minusButton.setEnabled(true);
+            }
+        });
+
+        minusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int currentLectureValue = Integer.parseInt(lectureEt.getText().toString());
+                if (currentLectureValue > 1) {
+                    lectureEt.setText(String.valueOf(--currentLectureValue));
+                    minusButton.setEnabled(true);
+                } else {
+                    minusButton.setEnabled(false);
+                }
+                plusButton.setEnabled(true);
+            }
+        });
+    }
+
+    /**
+     * setup college switch
+     */
+    private void setupCollegeSwitch() {
+        gitTv = (TextView) findViewById(R.id.git_tv);
+        gctTv = (TextView) findViewById(R.id.gct_tv);
+
+        //setup switch for selection of college
+        collegeSwitch = findViewById(R.id.college_switch);
+        collegeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                collegeSelected = isChecked ? 1 : 0;
+
+                if (collegeSelected == 1) {
+                    gctTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                    gitTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                } else {
+                    gctTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                    gitTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                }
+            }
+        });
     }
 
     /**
@@ -198,26 +274,37 @@ public class NewAttendanceActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (allInputsValid()) {
-                    Intent takeAttendanceIntent = new Intent();
-                    takeAttendanceIntent.setClass(NewAttendanceActivity.this,
-                            TakeAttendanceActivity.class);
-                    takeAttendanceIntent.putExtra("EXTRA_DATE", currentDateString);
-                    takeAttendanceIntent.putExtra("EXTRA_DAY", currentDay);
-                    takeAttendanceIntent.putExtra("EXTRA_SEMESTER", semesterSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_BRANCH", branchSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_SECTION", sectionSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_SUBJECT", subjectSelected);
-                    takeAttendanceIntent.putExtra("EXTRA_COLLEGE",
-                            String.valueOf(collegeSelected));
-                    takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
-                            getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
-                    startActivityForResult(takeAttendanceIntent, TAKE_ATTENDANCE_REQ_CODE);
+                    if (!attendanceAlreadyExists()) {
+                        Intent takeAttendanceIntent = new Intent();
+                        takeAttendanceIntent.setClass(NewAttendanceActivity.this,
+                                TakeAttendanceActivity.class);
+                        takeAttendanceIntent.putExtra("EXTRA_DATE", currentDateString);
+                        takeAttendanceIntent.putExtra("EXTRA_DAY", currentDay);
+                        takeAttendanceIntent.putExtra("EXTRA_SEMESTER", semesterSelected);
+                        takeAttendanceIntent.putExtra("EXTRA_BRANCH", branchSelected);
+                        takeAttendanceIntent.putExtra("EXTRA_SECTION", sectionSelected);
+                        takeAttendanceIntent.putExtra("EXTRA_SUBJECT", subjectSelected);
+                        takeAttendanceIntent.putExtra("EXTRA_COLLEGE",
+                                String.valueOf(collegeSelected));
+                        takeAttendanceIntent.putExtra("EXTRA_LECTURE",
+                                lectureEt.getText().toString());
+                        takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
+                                getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
+                        startActivityForResult(takeAttendanceIntent, TAKE_ATTENDANCE_REQ_CODE);
+                    } else {
+                        RelativeLayout parentlayout = findViewById(R.id.relative_layout);
+                        Snackbar snackbar = Snackbar.make(parentlayout,
+                                "Attendance already exists!",
+                                Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
 
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
                             Toast.LENGTH_SHORT).show();
                 }
             }
+
         });
     }
 
@@ -225,8 +312,10 @@ public class NewAttendanceActivity extends AppCompatActivity {
      * check all inputs are valid or not
      */
     private boolean allInputsValid() {
-        if (currentDateString == null || semesterSelected == null || branchSelected == null ||
-                subjectSelected == null || sectionSelected == null) {
+        int currentLectureValue = Integer.parseInt(lectureEt.getText().toString());
+        if (collegeSelected > 1 || collegeSelected < 0 || currentDateString == null ||
+                semesterSelected == null || branchSelected == null || subjectSelected == null ||
+                sectionSelected == null || currentLectureValue > 8 || currentLectureValue < 1) {
             return false;
         }
         return true;
@@ -239,17 +328,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
 
         subjectSpinner = (Spinner) findViewById(R.id.subject_spinner);
         if (semesterSelected != null && branchSelected != null) {
-            /**
-             * open the database for populating the spinner with subjects according to semester and
-             * branch
-             */
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            SQLiteDatabase db;
-            try {
-                db = databaseHelper.openDataBaseReadOnly();
-            } catch (SQLException sqle) {
-                throw sqle;
-            }
+
             /**
              * query the database and store result in cursor
              */
@@ -385,5 +464,31 @@ public class NewAttendanceActivity extends AppCompatActivity {
     public void onBackPressed() {
         setResult(Activity.RESULT_CANCELED);
         super.onBackPressed();
+    }
+
+    /**
+     * check that whether attendance already exists or not
+     */
+    private boolean attendanceAlreadyExists() {
+        String selection = AttendanceRecordEntry.COLLEGE_COL + "=?" + " and " +
+                AttendanceRecordEntry.SEMESTER_COL + "=?" + " and " +
+                AttendanceRecordEntry.BRANCH_COL + "=?" + " and " +
+                AttendanceRecordEntry.SECTION_COL + "=?" + " and " +
+                AttendanceRecordEntry.DATE_COL + "=?" + " and " +
+                AttendanceRecordEntry.SUBJECT_COL + "=?" + " and " +
+                AttendanceRecordEntry.LECTURE_COL + "=?";
+
+        String[] selectionArgs = new String[]{String.valueOf(collegeSelected),
+                semesterSelected,
+                branchSelected,
+                sectionSelected,
+                dateEditText.getText().toString(),
+                subjectSelected,
+                lectureEt.getText().toString()};
+
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, null, selection,
+                selectionArgs, null, null, null);
+
+        return (cursor.getCount() > 0 );
     }
 }
