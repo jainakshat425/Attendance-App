@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -18,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.attendance.data.DatabaseHelper;
@@ -61,6 +61,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private SpinnerArrayAdapter subjectAdapter;
     private String subjectSelected = null;
 
+
     //declare switch
     private Switch collegeSwitch;
     private int collegeSelected = 0;
@@ -71,7 +72,10 @@ public class NewAttendanceActivity extends AppCompatActivity {
     private String currentDateString = null;
     private String currentDay = null;
 
-    private static final int NEW_ATTENDANCE_REQ_CODE = 2;
+    private TextView gitTv;
+    private TextView gctTv;
+
+    private static final int TAKE_ATTENDANCE_REQ_CODE = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +95,23 @@ public class NewAttendanceActivity extends AppCompatActivity {
         //setup date picker dialog
         setupDatePickerDialog();
 
+        gitTv = (TextView) findViewById(R.id.git_tv);
+        gctTv = (TextView) findViewById(R.id.gct_tv);
+
         //setup switch for selection of college
         collegeSwitch = findViewById(R.id.college_switch);
         collegeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 collegeSelected = isChecked ? 1 : 0;
+
+                if ( collegeSelected == 1) {
+                    gctTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                    gitTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                } else {
+                    gctTv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                    gitTv.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                }
             }
         });
 
@@ -104,8 +119,11 @@ public class NewAttendanceActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == Activity.RESULT_OK){
+        if (resultCode == Activity.RESULT_OK) {
             setResult(Activity.RESULT_OK, data);
+            finish();
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            setResult(Activity.RESULT_CANCELED);
             finish();
         }
     }
@@ -113,7 +131,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home :
+            case android.R.id.home:
                 setResult(Activity.RESULT_CANCELED);
                 finish();
                 return true;
@@ -193,7 +211,8 @@ public class NewAttendanceActivity extends AppCompatActivity {
                             String.valueOf(collegeSelected));
                     takeAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID",
                             getIntent().getStringExtra("EXTRA_FACULTY_USER_ID"));
-                    startActivityForResult(takeAttendanceIntent, NEW_ATTENDANCE_REQ_CODE);
+                    startActivityForResult(takeAttendanceIntent, TAKE_ATTENDANCE_REQ_CODE);
+
                 } else {
                     Toast.makeText(NewAttendanceActivity.this, "Complete all fields",
                             Toast.LENGTH_SHORT).show();
@@ -272,7 +291,7 @@ public class NewAttendanceActivity extends AppCompatActivity {
                 emptySubjectSpinner();
             }
         } else {
-           emptySubjectSpinner();
+            emptySubjectSpinner();
         }
     }
 

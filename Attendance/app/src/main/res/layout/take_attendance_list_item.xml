@@ -1,47 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingRight="8dp"
+    android:paddingTop="8dp">
 
     <TextView
-        android:id="@+id/name_text_view"
+        android:id="@+id/serial_no_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Akshat Jain"
-        android:textColor="#000"
-        android:textSize="16sp"
-        android:layout_marginBottom="2dp"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        />
+        android:layout_alignParentTop="true"
+        android:background="@drawable/serial_circle_bg"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:textColor="@android:color/white"
+        tools:text="10" />
 
-    <TextView
-        android:id="@+id/roll_no_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="16EGJCS017"
-        android:padding="1dp"
-        android:layout_below="@id/name_text_view"
-        android:layout_alignParentLeft="true"/>
+        android:layout_toRightOf="@id/serial_no_tv"
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp">
+
+        <TextView
+            android:id="@+id/name_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Akshat Jain"
+            android:textColor="#000"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/roll_no_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="1dp"
+            android:text="16EGJCS017" />
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/present_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/plus_note_image"
-        android:layout_marginRight="16dp"/>
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@id/plus_note_image" />
 
     <ImageView
         android:id="@+id/plus_note_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/round_add_black_36"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        />
+        android:src="@drawable/round_add_black_36" />
 </RelativeLayout>

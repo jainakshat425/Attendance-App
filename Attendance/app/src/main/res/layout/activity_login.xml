@@ -1,119 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:orientation="vertical"
     tools:context=".LoginActivity">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp"
         android:fontFamily="casual"
         android:text="Attendance Manager"
         android:textColor="@color/textColor"
-        android:layout_marginTop="80dp"
         android:textSize="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:textStyle="bold" />
 
-    <LinearLayout
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/faculty_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:orientation="vertical">
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="32dp"
+        android:elevation="10dp"
+        android:layout_centerInParent="true"
+        card_view:cardCornerRadius="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
 
-            <TextView
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Username : "
-                android:textColor="@color/textColor" />
-
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3">
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/gtcjaipur_com"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="4dp"
-                    android:textColor="@color/textColor"/>
+                    android:layout_weight="1"
+                    android:text="Username : "
+                    android:textColor="@color/textColor" />
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="4dp"
+                        android:text="@string/gtcjaipur_com"
+                        android:textColor="@color/textColor" />
+
+                    <EditText
+                        android:id="@+id/username_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/username"
+                        android:maxLength="15"
+                        android:inputType="textEmailAddress" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Password : "
+                    android:textColor="@color/textColor" />
+
                 <EditText
-                    android:id="@+id/username_edit_text"
-                    android:layout_width="match_parent"
+                    android:id="@+id/password_edit_text"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/username"
-                    android:inputType="textEmailAddress" />
-            </RelativeLayout>
+                    android:layout_weight="3"
+                    android:hint="********"
+                    android:maxLength="20"
+                    android:inputType="textPassword" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/need_help_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/needHelpButtonColor"
+                    android:text="@string/need_help"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/login_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/textColor"
+                    android:text="@string/Login"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
         </LinearLayout>
+    </android.support.v7.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Password : "
-                android:textColor="@color/textColor" />
-
-            <EditText
-                android:id="@+id/password_edit_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:hint="@string/password"
-                android:inputType="textPassword" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="32dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/need_help_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="16dp"
-                android:layout_weight="1"
-                android:background="@color/needHelpButtonColor"
-                android:text="@string/need_help"
-                android:textColor="@android:color/white" />
-
-            <Button
-                android:id="@+id/login_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/textColor"
-                android:text="@string/Login"
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

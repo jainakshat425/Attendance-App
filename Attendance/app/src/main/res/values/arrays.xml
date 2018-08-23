@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- array containing name of 'subjects' for spinner -->
-    <string-array name="subjects_array">
-        <item>Subject</item>
-        <item>ADS</item>
-        <item>CA</item>
-        <item>TEF</item>
-        <item>OS</item>
-        <item>DHD</item>
-    </string-array>
 
     <!-- array containing 'semester' for spinner -->
     <string-array name="semester_array">

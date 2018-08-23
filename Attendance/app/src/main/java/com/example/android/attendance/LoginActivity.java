@@ -28,7 +28,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button needHelpButton;
 
     private int attempts = 5;
-    private  DatabaseHelper myDbHelper;;
+    private  DatabaseHelper myDbHelper;
+
+    private Bundle intentBundle = new Bundle();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +101,13 @@ public class LoginActivity extends AppCompatActivity {
             String userId = cursor.getString(cursor.getColumnIndexOrThrow
                     (FacultyEntry.F_USER_ID_COL));
 
+            intentBundle.putString("EXTRA_FACULTY_NAME",name);
+            intentBundle.putString("EXTRA_FACULTY_USER_ID",userId);
+            intentBundle.putString("EXTRA_FACULTY_DEPARTMENT",dept);
+
             Intent mainIntent = new Intent();
             mainIntent.setClass(this,MainActivity.class);
-            mainIntent.putExtra("EXTRA_FACULTY_NAME",name);
-            mainIntent.putExtra("EXTRA_FACULTY_USER_ID",userId);
-            mainIntent.putExtra("EXTRA_FACULTY_DEPARTMENT",dept);
+            mainIntent.putExtras(intentBundle);
             startActivity(mainIntent);
         }
     }

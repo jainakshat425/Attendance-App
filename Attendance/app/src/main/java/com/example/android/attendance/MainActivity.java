@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
 import com.example.android.attendance.data.DatabaseHelper;
@@ -30,22 +29,25 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView mainListView;
     private MainListCursorAdapter cursorAdapter;
-    private Cursor cursor;
 
     private DatabaseHelper databaseHelper;
     private SQLiteDatabase db;
 
-    private static final int MAIN_ACTIVITY_REQUEST_CODE = 1;
+    private static final int NEW_ATTENDANCE_REQUEST_CODE = 1;
+    private static final int UPDATE_ATTENDANCE_REQ_CODE = 2;
+
+    Bundle intentBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent loginIntent = getIntent();
-        String facName = loginIntent.getStringExtra("EXTRA_FACULTY_NAME");
-        String facUserId = loginIntent.getStringExtra("EXTRA_FACULTY_USER_ID");
-        String facDept = loginIntent.getStringExtra("EXTRA_FACULTY_DEPARTMENT");
+        intentBundle = getIntent().getExtras();
+
+        String facName = intentBundle.getString("EXTRA_FACULTY_NAME");
+        String facUserId = intentBundle.getString("EXTRA_FACULTY_USER_ID");
+        String facDept = intentBundle.getString("EXTRA_FACULTY_DEPARTMENT");
 
         facNameTv = (TextView) findViewById(R.id.fac_name_tv);
         facDeptTv = (TextView) findViewById(R.id.fac_dept_tv);
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
                 new String[]{facUserId}, null, null, null);
 
         cursorAdapter = new MainListCursorAdapter(this, cursor);
@@ -88,23 +90,23 @@ public class MainActivity extends AppCompatActivity {
                 newAttendanceIntent.setClass
                         (MainActivity.this, NewAttendanceActivity.class);
                 newAttendanceIntent.putExtra("EXTRA_FACULTY_USER_ID", facUserId);
-                startActivityForResult(newAttendanceIntent, MAIN_ACTIVITY_REQUEST_CODE);
+                startActivityForResult(newAttendanceIntent, NEW_ATTENDANCE_REQUEST_CODE);
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            if (data.getLongExtra("EXTRA_FACULTY_USER_ID", 0) > 0) {
-                Toast.makeText(this, "New Record Added.", Toast.LENGTH_SHORT).show();
-            }
-            cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
-                    new String[]{data.getStringExtra("EXTRA_FACULTY_USER_ID")},
-                    null, null, null);
-            cursorAdapter.swapCursor(cursor);
-        } else if(resultCode == Activity.RESULT_CANCELED) {
-            Toast.makeText(this,"No changes made!",Toast.LENGTH_SHORT).show();
-        }
+
+        Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME, PROJECTION, SELECTION,
+                new String[]{intentBundle.getString("EXTRA_FACULTY_USER_ID")},
+                null, null, null);
+        cursorAdapter.swapCursor(cursor);
+        cursorAdapter.notifyDataSetChanged();
+
+    }
+
+    public static int getUpdateAttendanceReqCode() {
+        return UPDATE_ATTENDANCE_REQ_CODE;
     }
 }

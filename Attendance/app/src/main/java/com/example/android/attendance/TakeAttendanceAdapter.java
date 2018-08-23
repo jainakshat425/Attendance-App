@@ -25,6 +25,7 @@ public class TakeAttendanceAdapter extends CursorAdapter {
     private static String ATTENDANCE_TABLE;
     private static String NEW_COLUMN;
     private static ArrayList<Integer> attendanceStatesList;
+    private int serialNo;
 
     public TakeAttendanceAdapter(Activity context, Cursor cursor, String attendanceTable,
                                  String newColumn, ArrayList<Integer> attendanceStates) {
@@ -32,6 +33,7 @@ public class TakeAttendanceAdapter extends CursorAdapter {
         ATTENDANCE_TABLE = attendanceTable;
         NEW_COLUMN = newColumn;
         attendanceStatesList = attendanceStates;
+
     }
 
 
@@ -55,6 +57,10 @@ public class TakeAttendanceAdapter extends CursorAdapter {
         rollNoTv.setText(rollNo);
 
         int position = cursor.getPosition();
+
+        serialNo = position;
+        TextView serialTv = (TextView) view.findViewById(R.id.serial_no_tv);
+        serialTv.setText(String.valueOf(serialNo+1));
 
         CheckBox presentCheckbox = view.findViewById(R.id.present_checkbox);
 
@@ -80,26 +86,6 @@ public class TakeAttendanceAdapter extends CursorAdapter {
         }
     }
 
-    /*  private void changeAttendanceState(Context context, CompoundButton button, boolean isChecked) {
-
-          int newAttendanceState = isChecked ? 1 : 0;
-
-          ContentValues values = new ContentValues();
-          values.put(NEW_COLUMN, newAttendanceState);
-
-          DatabaseHelper dbHelper = new DatabaseHelper(context);
-          SQLiteDatabase db = dbHelper.openDatabaseForReadWrite();
-
-          String id = String.valueOf(button.getTag());
-          String selection = AttendanceEntry._ID
-                  + "=?";
-          String[] selectionArgs = {String.valueOf(id)};
-
-          int rowUpdated = db.update(ATTENDANCE_TABLE, values, selection, selectionArgs);
-          if (rowUpdated <= 0) {
-              Toast.makeText(context, "Error in Attendance", Toast.LENGTH_SHORT).show();
-          }
-      }*/
     public static int getAttendanceState(int i) {
         return attendanceStatesList.get(i);
     }

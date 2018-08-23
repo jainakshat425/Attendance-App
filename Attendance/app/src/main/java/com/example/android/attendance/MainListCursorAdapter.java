@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +21,6 @@ public class MainListCursorAdapter extends CursorAdapter {
 
 
     private Bundle intentBundle;
-    private static final int MAIN_LIST_ADAPTER_REQ_CODE = 3;
 
     public MainListCursorAdapter(Activity context, Cursor cursor) {
         super(context, cursor, 0);
@@ -33,6 +34,8 @@ public class MainListCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
+
+        Resources resources = context.getResources();
 
         int tableNameIndex = cursor.getColumnIndexOrThrow(AttendanceRecordEntry.ATTENDANCE_TABLE_COL);
         int columnNameIndex = cursor.getColumnIndexOrThrow(AttendanceRecordEntry.ATTENDANCE_COL);
@@ -60,6 +63,14 @@ public class MainListCursorAdapter extends CursorAdapter {
         TextView collegeTv = (TextView) view.findViewById(R.id.college_tv);
         collegeTv.setText(college);
 
+        GradientDrawable collegeCircle = (GradientDrawable) collegeTv.getBackground();
+
+        if (college.equals(resources.getString(R.string.college_git))) {
+            collegeCircle.setColor(ContextCompat.getColor(context, R.color.colorGit));
+        } else {
+            collegeCircle.setColor(ContextCompat.getColor(context, R.color.colorGct));
+        }
+
         TextView semesterTv = (TextView) view.findViewById(R.id.semester_tv);
         semesterTv.setText(semester + "th Sem");
 
@@ -81,7 +92,7 @@ public class MainListCursorAdapter extends CursorAdapter {
         TextView totalStudentsTv = (TextView) view.findViewById(R.id.total_students_tv);
         totalStudentsTv.setText(String.valueOf(totalStudents));
 
-        Resources resources = context.getResources();
+
         int collegeSelected = (college.equals(resources.getString(R.string.college_git))) ? 0 : 1;
         String[] projection = {AttendanceEntry._ID, AttendanceEntry.NAME_COL,
                 AttendanceEntry.ROLL_NO_COL, columnName};
@@ -90,7 +101,7 @@ public class MainListCursorAdapter extends CursorAdapter {
         intentBundle.putString("EXTRA_DATE", date);
         intentBundle.putString("EXTRA_SEMESTER", semester);
         intentBundle.putString("EXTRA_BRANCH", branch);
-        intentBundle.putString("EXTRA_SECTION", branch);
+        intentBundle.putString("EXTRA_SECTION", section);
         intentBundle.putString("EXTRA_SUBJECT", subject);
         intentBundle.putString("EXTRA_COLLEGE", String.valueOf(collegeSelected));
         intentBundle.putString("EXTRA_FACULTY_USER_ID", facUserId);
@@ -102,15 +113,14 @@ public class MainListCursorAdapter extends CursorAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent takeAttendanceIntent = new Intent();
                 takeAttendanceIntent.setClass(context, TakeAttendanceActivity.class);
                 takeAttendanceIntent.putExtras((Bundle) v.getTag());
                 ((Activity) context).startActivityForResult(takeAttendanceIntent,
-                        MAIN_LIST_ADAPTER_REQ_CODE);
-
+                        MainActivity.getUpdateAttendanceReqCode());
             }
         });
 
     }
+
 }

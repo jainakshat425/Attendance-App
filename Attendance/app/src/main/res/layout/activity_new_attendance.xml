@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,9 +10,10 @@
         android:id="@+id/date_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:layout_alignParentTop="true">
+        android:orientation="horizontal">
 
         <!-- Label -->
         <TextView
@@ -30,47 +30,111 @@
             android:inputType="date" />
     </LinearLayout>
 
-   <!-- Spinners category -->
+    <!-- Label -->
+    <TextView
+        android:id="@+id/select_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/date_layout"
+        android:layout_margin="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Select"
+        android:textColor="@color/colorAccent" />
+    <!-- Spinners category -->
     <LinearLayout
-        android:id="@+id/spinner_layout"
+        android:id="@+id/spinner_layout_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:layout_below="@id/date_layout">
+        android:layout_below="@id/select_tv"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:orientation="horizontal">
+        <!-- semester field -->
+        <Spinner
+            android:id="@+id/semester_spinner"
+            style="@style/SpinnerStyle"
+            android:layout_marginRight="4dp" />
+        <!-- branch field -->
+        <Spinner
+            android:id="@+id/branch_spinner"
+            style="@style/SpinnerStyle" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/spinner_layout_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_layout_1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <!-- section field -->
+        <Spinner
+            android:id="@+id/section_spinner"
+            style="@style/SpinnerStyle"
+            android:layout_marginRight="4dp" />
+
+        <!-- subject field -->
+        <Spinner
+            android:id="@+id/subject_spinner"
+            style="@style/SpinnerStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lecture_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:layout_below="@id/spinner_layout_2">
         <!-- Label -->
         <TextView
-            style="@style/CategoryStyle"
-            android:text="Select" />
-
-        <LinearLayout
-            android:id="@+id/semester_branch_layout"
+            android:id="@+id/lecture_label"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Lecture"
+            android:textColor="@color/colorAccent" />
+        <!-- lecture layout -->
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@id/date_layout">
+            android:layout_marginTop="16dp">
 
-            <!-- semester field -->
-            <Spinner
-                android:id="@+id/semester_spinner"
-                style="@style/SpinnerStyle" />
-            <!-- branch field -->
-            <Spinner
-                android:id="@+id/branch_spinner"
-                style="@style/SpinnerStyle"/>
-            <!-- subject field -->
-            <Spinner
-                android:id="@+id/subject_spinner"
-                style="@style/SpinnerStyle" />
-            <!-- section field -->
-            <Spinner
-                android:id="@+id/section_spinner"
-                style="@style/SpinnerStyle" />
+            <EditText
+                android:id="@+id/lecture_et"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/minus_lecture_button"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                tools:text="1" />
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/minus_lecture_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:text="-"
+                android:textColor="@color/textColor" />
 
+            <Button
+                android:id="@+id/plus_lecture_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/lecture_et"
+                android:text="+" />
+        </RelativeLayout>
     </LinearLayout>
 
     <!-- switch layout -->
@@ -78,28 +142,31 @@
         android:id="@+id/switch_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_below="@id/spinner_layout">
+        android:layout_below="@id/lecture_layout"
+        android:layout_marginTop="16dp">
 
         <Switch
             android:id="@+id/college_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:showText="false"
             android:textOff="GIT"
-            android:textOn="GCT"
-            android:layout_centerHorizontal="true" />
+            android:textOn="GCT" />
 
         <TextView
+            android:id="@+id/git_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/college_switch"
             android:paddingTop="4dp"
-            android:text="GIT" />
+            android:text="GIT"
+            android:textColor="@color/textColor" />
 
         <TextView
+            android:id="@+id/gct_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/college_switch"
@@ -115,6 +182,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/baseline_done_white_24"/>
+        android:src="@drawable/baseline_done_white_24" />
 
 </RelativeLayout>

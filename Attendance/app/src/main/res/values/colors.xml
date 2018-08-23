@@ -6,5 +6,11 @@
 
     <color name="textColor">#212121</color>
     <color name="needHelpButtonColor">#870000</color>
+    <color name="serialNoBgColor">#006978</color>
+
+    <color name="colorDepartment">#00600f</color>
+
+    <color name="colorGct">#c51162</color>
+    <color name="colorGit">#3d5afe</color>
 
 </resources>

@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.attendance.data.AttendanceContract;
 import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
 import com.example.android.attendance.data.DatabaseHelper;
 import com.example.android.attendance.data.AttendanceContract.AttendanceEntry;
@@ -40,7 +39,6 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     private Cursor currentTableCursor;
 
     private Bundle bundle;
-    private int totalStudents;
 
     private ArrayList<Integer> attendanceStatesList;
 
@@ -58,6 +56,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
          * get data from intent i.e. the activity which called this..
          */
         bundle = getIntent().getExtras();
+
         String college = bundle.getString("EXTRA_COLLEGE");
         String date = bundle.getString("EXTRA_DATE");
         String day = bundle.getString("EXTRA_DAY");
@@ -84,7 +83,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         branchTv.setText(branch);
         sectionTv.setText(section);
         subjectTv.setText(subject);
-        dateTv.setText(day + ", " + date);
+        dateTv.setText(date);
 
         /**
          * open the database for getting the table of Students for Attendance
@@ -98,24 +97,30 @@ public class TakeAttendanceActivity extends AppCompatActivity {
             throw sqle;
         }
 
+        /**
+         * this condition implies that this is update mode of attendance
+         */
         if (existingTable != null && existingAttendanceColumn != null &&
                 existingProjection != null) {
 
+
+            setTitle(getString(R.string.update_attendance_title));
 
             String orderBy = AttendanceEntry.ROLL_NO_COL + " ASC";
 
             currentTableCursor = db.query(existingTable, existingProjection, null,
                     null, null, null, orderBy);
 
-            totalStudents = currentTableCursor.getCount();
 
             if (currentTableCursor.moveToFirst()) {
+
                 //get attendance state of all the students
-                int attendanceIndex = currentTableCursor.getColumnIndexOrThrow(existingAttendanceColumn);
+                int attendanceIndex = currentTableCursor.getColumnIndexOrThrow
+                        (existingAttendanceColumn);
                 int attendanceState;
                 attendanceStatesList = new ArrayList<Integer>();
                 currentTableCursor.moveToFirst();
-                for (int i = 0; i < totalStudents; i++) {
+                for (int i = 0; i < currentTableCursor.getCount(); i++) {
                     attendanceState = currentTableCursor.getInt(attendanceIndex);
                     // initializes all items value with their existing attendanceState
                     attendanceStatesList.add(i, attendanceState);
@@ -163,10 +168,9 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 currentTableCursor = db.query(ATTENDANCE_TABLE, attendanceProjection, null,
                         null, null, null, orderBy);
 
-                totalStudents = currentTableCursor.getCount();
 
                 attendanceStatesList = new ArrayList<Integer>();
-                for (int i = 0; i < totalStudents; i++) {
+                for (int i = 0; i < currentTableCursor.getCount(); i++) {
                     // initializes all items value with their existing attendanceState
                     attendanceStatesList.add(i, 0);
                 }
@@ -174,11 +178,11 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                         ATTENDANCE_TABLE, attendanceColumn, attendanceStatesList);
                 stdListView.setAdapter(takeAttendanceAdapter);
             } else {
-                Toast.makeText(this, "Something went wrong!",
+                Toast.makeText(this, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Something went wrong.", Toast.LENGTH_SHORT).show();
             Log.e("TakeAttendanceActivity", "Column name issue");
         }
     }
@@ -203,7 +207,14 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 + AttendanceEntry.NAME_COL + " TEXT NOT NULL, "
                 + AttendanceEntry.ROLL_NO_COL + " TEXT NOT NULL UNIQUE, "
                 + AttendanceEntry.TOTAL_ATTENDANCE_COL + " INTEGER)";
-        db.execSQL(CREATE_NEW_TABLE);
+
+        try {
+            db.execSQL(CREATE_NEW_TABLE);
+        } catch(android.database.sqlite.SQLiteException e) {
+
+            Log.e("TakeAttendanceActivity","Table Already Exists",e);
+        }
+
 
         /**
          * get data from students table
@@ -254,9 +265,15 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
             String ADD_ATTENDANCE_COLUMN = "ALTER TABLE " + newTableName + " ADD COLUMN "
                     + NEW_COLUMN + " INTEGER DEFAULT 0;";
-            db.execSQL(ADD_ATTENDANCE_COLUMN);
-            db.needUpgrade(db.getVersion() + 1);
-            insertAttendanceRecord(newTableName, NEW_COLUMN);
+
+            try {
+                db.execSQL(ADD_ATTENDANCE_COLUMN);
+                db.needUpgrade(db.getVersion() + 1);
+                insertAttendanceRecord(newTableName, NEW_COLUMN);
+            } catch (android.database.sqlite.SQLiteException e) {
+                Log.e("TakeAttendanceActivity", "Column Already Exists", e);
+            }
+
         } else {
             Toast.makeText(this, "Attendance already Exists", Toast.LENGTH_SHORT).show();
         }
@@ -276,6 +293,8 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
 
     private boolean tableAlreadyExists(String newTableName) {
+
+
         Cursor cursor = db.query(AttendanceRecordEntry.TABLE_NAME,
                 new String[]{AttendanceRecordEntry._ID},
                 AttendanceRecordEntry.ATTENDANCE_TABLE_COL + "=?",
@@ -295,17 +314,23 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.done_take_attendance) {
+        switch (item.getItemId()) {
+            case R.id.done_take_attendance:
 
-            updateAttendanceStates();
+                updateAttendanceStates();
 
-            updateAttendanceRecord();
+                updateAttendanceRecord();
 
-            Intent intent = new Intent();
-            intent.putExtras(bundle);
+                Intent intent = new Intent();
+                intent.putExtras(bundle);
 
-            setResult(Activity.RESULT_OK, intent);
-            finish();
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+
+            case android.R.id.home :
+                updateAttendanceRecord();
+                setResult(Activity.RESULT_CANCELED);
+                finish();
 
         }
         return super.onOptionsItemSelected(item);
@@ -320,7 +345,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
             currentTableCursor.moveToFirst();
             int idIndex = currentTableCursor.getColumnIndex(AttendanceEntry._ID);
             String currentId;
-            for (int i = 0; i < totalStudents; i++) {
+            for (int i = 0; i < currentTableCursor.getCount(); i++) {
 
                 currentId = String.valueOf(currentTableCursor.getInt(idIndex));
                 attendanceState = TakeAttendanceAdapter.getAttendanceState(i);
@@ -338,17 +363,20 @@ public class TakeAttendanceActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         updateAttendanceRecord();
-        super.onBackPressed();
+        setResult(Activity.RESULT_CANCELED);
+        finish();
     }
 
     private void updateAttendanceRecord() {
 
         String attendanceColumn = TakeAttendanceAdapter.getAttendanceColumn();
         String attendanceTable = TakeAttendanceAdapter.getAttendanceTableName();
+
         ContentValues record = new ContentValues();
+
+        record.put(AttendanceRecordEntry.TOTAL_STUDENTS_COL, totalStudents(attendanceTable));
         record.put(AttendanceRecordEntry.STUDENTS_PRESENT_COL,
                 studentsPresent(attendanceTable, attendanceColumn));
-        record.put(AttendanceRecordEntry.TOTAL_STUDENTS_COL, totalStudents);
 
         String where = AttendanceRecordEntry.ATTENDANCE_TABLE_COL + "=?" + " and "
                 + AttendanceRecordEntry.ATTENDANCE_COL + "=?";
@@ -357,6 +385,13 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         int rowUpdated = db.update(AttendanceRecordEntry.TABLE_NAME, record, where, whereArgs);
         Toast.makeText(this, "Rows Updated: " + rowUpdated, Toast.LENGTH_SHORT).show();
 
+    }
+
+    private int totalStudents(String newTableName) {
+        String[] projection = {AttendanceEntry._ID};
+        Cursor totalStudents = db.query(newTableName, projection, null, null,
+                null, null, null);
+        return totalStudents.getCount();
     }
 
     private void insertAttendanceRecord(String newTableName,
