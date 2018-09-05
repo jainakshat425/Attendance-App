@@ -7,12 +7,6 @@ import android.provider.BaseColumns;
 public class FacultyContract {
     public static abstract class FacultyEntry implements BaseColumns {
 
-        public static final String CONTENT_AUTHORITY = "com.example.android.attendance";
-        public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-        public static final String PATH_FACULTIES = "faculties";
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI,PATH_FACULTIES);
-
-
         public static final String TABLE_NAME = "faculties";
 
         public static final String _ID = BaseColumns._ID;

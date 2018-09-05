@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.example.android.attendance.data.AttendanceContract.AttendanceEntry;
 import com.example.android.attendance.data.AttendanceRecordContract.AttendanceRecordEntry;
+import com.example.android.attendance.data.StudentContract;
+import com.example.android.attendance.data.StudentContract.StudentEntry;
 
 public class MainListCursorAdapter extends CursorAdapter {
 
@@ -69,7 +71,7 @@ public class MainListCursorAdapter extends CursorAdapter {
         String day = cursor.getString(dayIndex);
         int lecture = cursor.getInt(lectureIndex);
 
-        String collegeString = (college == 1) ? resources.getString(R.string.college_gct)
+        String collegeString = (college == StudentEntry.COLLEGE_GCT) ? resources.getString(R.string.college_gct)
                 : resources.getString(R.string.college_git);
 
         TextView collegeTv = (TextView) view.findViewById(R.id.college_tv);
@@ -112,9 +114,8 @@ public class MainListCursorAdapter extends CursorAdapter {
         totalStudentsTv.setText(String.valueOf(totalStudents));
 
 
-        int collegeSelected = (collegeString.equals(resources.getString(R.string.college_git))) ? 0 : 1;
-        String[] projection = {AttendanceEntry._ID, AttendanceEntry.NAME_COL,
-                AttendanceEntry.ROLL_NO_COL, columnName};
+        int collegeSelected = (collegeString.equals(resources.getString(R.string.college_git))) ? StudentEntry.COLLEGE_GIT :
+                StudentEntry.COLLEGE_GCT;
 
         intentBundle = new Bundle();
         intentBundle.putString("EXTRA_DATE", date);
@@ -128,7 +129,6 @@ public class MainListCursorAdapter extends CursorAdapter {
         intentBundle.putString("EXTRA_DAY",day);
         intentBundle.putString("EXTRA_TABLE_NAME", tableName);
         intentBundle.putString("EXTRA_ATTENDANCE_COLUMN", columnName);
-        intentBundle.putStringArray("EXTRA_ATTENDANCE_PROJECTION", projection);
 
         view.setTag(intentBundle);
         view.setOnClickListener(new View.OnClickListener() {

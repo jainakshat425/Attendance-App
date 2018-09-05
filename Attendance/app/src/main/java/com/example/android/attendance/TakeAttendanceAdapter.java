@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,14 +26,16 @@ public class TakeAttendanceAdapter extends CursorAdapter {
     private static String ATTENDANCE_TABLE;
     private static String NEW_COLUMN;
     private static ArrayList<Integer> attendanceStatesList;
-    private int serialNo;
+    private static ArrayList<Integer> totalAttendanceList;
 
     public TakeAttendanceAdapter(Activity context, Cursor cursor, String attendanceTable,
-                                 String newColumn, ArrayList<Integer> attendanceStates) {
+                                 String newColumn, ArrayList<Integer> attendanceStates,
+                                 ArrayList<Integer> totalAttendances) {
         super(context, cursor, 0);
         ATTENDANCE_TABLE = attendanceTable;
         NEW_COLUMN = newColumn;
         attendanceStatesList = attendanceStates;
+        totalAttendanceList = totalAttendances;
 
     }
 
@@ -58,9 +61,9 @@ public class TakeAttendanceAdapter extends CursorAdapter {
 
         int position = cursor.getPosition();
 
-        serialNo = position;
+        int serialNo = position;
         TextView serialTv = (TextView) view.findViewById(R.id.serial_no_tv);
-        serialTv.setText(String.valueOf(serialNo+1));
+        serialTv.setText(String.valueOf(serialNo +1));
 
         CheckBox presentCheckbox = view.findViewById(R.id.present_checkbox);
 
@@ -70,11 +73,15 @@ public class TakeAttendanceAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 int position = Integer.parseInt(String.valueOf(v.getTag()));
-                /*changeAttendanceState(context, buttonView, isChecked);*/
+                int currentTotalAttendance = totalAttendanceList.get(position);
                 if (attendanceStatesList.get(position) == 1) {
                     attendanceStatesList.set(position, 0);
+                    if (currentTotalAttendance != 0) {
+                        totalAttendanceList.set(position, --currentTotalAttendance);
+                    }
                 } else {
                     attendanceStatesList.set(position, 1);
+                    totalAttendanceList.set(position, ++currentTotalAttendance);
                 }
 
             }
@@ -89,6 +96,8 @@ public class TakeAttendanceAdapter extends CursorAdapter {
     public static int getAttendanceState(int i) {
         return attendanceStatesList.get(i);
     }
+
+    public static int getTotalAttendance(int i) { return totalAttendanceList.get(i); }
 
     public static String getAttendanceColumn() {
         return NEW_COLUMN;

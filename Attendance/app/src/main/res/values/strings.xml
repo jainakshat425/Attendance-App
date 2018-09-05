@@ -13,4 +13,6 @@
     <string name="college_git">GIT</string>
     <string name="gtcjaipur_com">\@gtcjaipur.com</string>
     <string name="update_attendance_title">Update Attendance</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorPrimary"
+    android:padding="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/fac_dept_tv"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/dept_circle_bg"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                tools:text="CS" />
+
+            <TextView
+                android:id="@+id/fac_name_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@id/fac_dept_tv"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                tools:text="Teacher" />
+
+            <TextView
+                android:id="@+id/fac_id_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@id/fac_dept_tv"
+                android:layout_below="@id/fac_name_tv"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                tools:text="Teacher@gtcjaipur.com" />
+        </RelativeLayout>
+
+</LinearLayout>

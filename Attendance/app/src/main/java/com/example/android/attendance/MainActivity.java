@@ -5,9 +5,18 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -22,6 +31,10 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView facNameTv;
     private TextView facDeptTv;
+    private TextView facIdTv;
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
 
     private ListView mainListView;
     private MainListCursorAdapter cursorAdapter;
@@ -39,17 +52,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
         intentBundle = getIntent().getExtras();
 
         String facName = intentBundle.getString("EXTRA_FACULTY_NAME");
         String facUserId = intentBundle.getString("EXTRA_FACULTY_USER_ID");
         String facDept = intentBundle.getString("EXTRA_FACULTY_DEPARTMENT");
 
-        facNameTv = (TextView) findViewById(R.id.fac_name_tv);
-        facDeptTv = (TextView) findViewById(R.id.fac_dept_tv);
-
-        facNameTv.setText(facName);
-        facDeptTv.setText(facDept);
+        setupNavigationDrawer(facName, facUserId, facDept);
 
         mainListView = findViewById(R.id.main_list_view);
 
@@ -74,6 +88,60 @@ public class MainActivity extends AppCompatActivity {
         cursorAdapter = new MainListCursorAdapter(this, cursor);
         mainListView.setAdapter(cursorAdapter);
         setupFloatingActionButton(facUserId);
+    }
+
+    private void setupNavigationDrawer(String facName, String facUserId, String facDept) {
+
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        // Add code here to update the UI based on the item selected
+                        // For example, swap UI fragments here
+
+                        return true;
+                    }
+                });
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+
+        View drawerFacDetails = navigationView.getHeaderView(0);
+
+        facNameTv = (TextView) drawerFacDetails.findViewById(R.id.fac_name_tv);
+        facDeptTv = (TextView) drawerFacDetails.findViewById(R.id.fac_dept_tv);
+        facIdTv = (TextView) drawerFacDetails.findViewById(R.id.fac_id_tv);
+
+        facNameTv.setText(facName);
+        facDeptTv.setText(facDept);
+        facIdTv.setText(facUserId);
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -108,4 +176,6 @@ public class MainActivity extends AppCompatActivity {
     public static int getUpdateAttendanceReqCode() {
         return UPDATE_ATTENDANCE_REQ_CODE;
     }
+
+
 }

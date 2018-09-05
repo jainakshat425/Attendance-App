@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/relative_layout"
     tools:context=".NewAttendanceActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:titleTextColor="@android:color/white" />
 
     <!-- Date  -->
     <LinearLayout
         android:id="@+id/date_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/toolbar"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:orientation="horizontal">
@@ -90,24 +100,24 @@
         android:id="@+id/lecture_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
-        android:layout_below="@id/spinner_layout_2">
+        android:layout_below="@id/spinner_layout_2"
+        android:paddingBottom="16dp">
         <!-- Label -->
         <TextView
             android:id="@+id/lecture_label"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
+            android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
             android:text="Lecture"
             android:textColor="@color/colorAccent" />
         <!-- lecture layout -->
         <RelativeLayout
             android:layout_width="0dp"
-            android:layout_weight="2"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="16dp"
+            android:layout_weight="2">
 
             <EditText
                 android:id="@+id/lecture_et"
@@ -123,8 +133,8 @@
                 android:id="@+id/minus_lecture_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
                 android:text="-"
                 android:textColor="@color/textColor" />
 
@@ -182,6 +192,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:background="@color/colorPrimary"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/baseline_done_white_24" />
 

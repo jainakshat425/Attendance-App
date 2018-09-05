@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,25 +70,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
      */
     private boolean checkDataBase(){
 
-        SQLiteDatabase checkDB = null;
-
-        try{
-            String myPath = DB_PATH + DB_NAME;
-            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
-
-        }catch(SQLiteException e){
-
-            //database does't exist yet.
-
-        }
-
-        if(checkDB != null){
-
-            checkDB.close();
-
-        }
-
-        return checkDB != null ? true : false;
+        File dbFile = myContext.getDatabasePath(DB_NAME);
+        return dbFile.exists();
     }
 
     /**

@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,13 +44,16 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
     private Bundle bundle;
 
-    private ArrayList<Integer> attendanceStatesList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_take_attendance);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
 
         /**
          * initialize all text views
@@ -71,12 +76,11 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
         //values which only exist when we activity is launched for updating attendance
         String existingTable = bundle.getString("EXTRA_TABLE_NAME");
-        String[] existingProjection = bundle.getStringArray("EXTRA_ATTENDANCE_PROJECTION");
         String existingAttendanceColumn = bundle.getString("EXTRA_ATTENDANCE_COLUMN");
 
 
-        String collegeString = (Integer.parseInt(college) == 1) ? getString(R.string.college_gct)
-                : getString(R.string.college_git);
+        String collegeString = (Integer.parseInt(college) == StudentEntry.COLLEGE_GCT) ?
+                getString(R.string.college_gct) : getString(R.string.college_git);
 
         /**
          * populate the text views with the data from the intent
@@ -102,18 +106,24 @@ public class TakeAttendanceActivity extends AppCompatActivity {
             throw sqle;
         }
 
+        ArrayList<Integer> attendanceStatesList;
+        ArrayList<Integer> totalAttendanceList;
+
         /**
          * this condition implies that this is update mode of attendance
          */
-        if (existingTable != null && existingAttendanceColumn != null &&
-                existingProjection != null) {
+        if (existingTable != null && existingAttendanceColumn != null) {
 
-
+            //changes activity title
             setTitle(getString(R.string.update_attendance_title));
 
             String orderBy = AttendanceEntry.ROLL_NO_COL + " ASC";
 
-            currentTableCursor = db.query(existingTable, existingProjection, null,
+            String[] projection = new String[] {AttendanceEntry._ID, AttendanceEntry.NAME_COL,
+                    AttendanceEntry.ROLL_NO_COL, AttendanceEntry.TOTAL_ATTENDANCE_COL,
+                    existingAttendanceColumn};
+
+            currentTableCursor = db.query(existingTable, projection, null,
                     null, null, null, orderBy);
 
 
@@ -124,16 +134,30 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                         (existingAttendanceColumn);
                 int attendanceState;
                 attendanceStatesList = new ArrayList<Integer>();
+
+                //get total Attendance of all the students
+                int totalAttendanceIndex = currentTableCursor.getColumnIndexOrThrow(
+                        AttendanceEntry.TOTAL_ATTENDANCE_COL);
+                int currentTotalAttendance;
+                totalAttendanceList = new ArrayList<Integer>();
+
                 currentTableCursor.moveToFirst();
                 for (int i = 0; i < currentTableCursor.getCount(); i++) {
+
+                    // initializes array with existing attendance States
                     attendanceState = currentTableCursor.getInt(attendanceIndex);
-                    // initializes all items value with their existing attendanceState
                     attendanceStatesList.add(i, attendanceState);
+
+                    //initializes array with existing total attendance count
+                    currentTotalAttendance = currentTableCursor.getInt(totalAttendanceIndex);
+                    totalAttendanceList.add(i, currentTotalAttendance);
+
                     currentTableCursor.moveToNext();
                 }
 
                 takeAttendanceAdapter = new TakeAttendanceAdapter(this, currentTableCursor,
-                        existingTable, existingAttendanceColumn, attendanceStatesList);
+                        existingTable, existingAttendanceColumn, attendanceStatesList,
+                        totalAttendanceList);
                 stdListView.setAdapter(takeAttendanceAdapter);
             }
 
@@ -166,21 +190,37 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 bundle.putString("EXTRA_ATTENDANCE_COLUMN", attendanceColumn);
 
                 String[] attendanceProjection = new String[]{AttendanceEntry._ID,
-                        AttendanceEntry.NAME_COL, AttendanceEntry.ROLL_NO_COL, attendanceColumn};
+                        AttendanceEntry.NAME_COL, AttendanceEntry.ROLL_NO_COL,
+                        AttendanceEntry.TOTAL_ATTENDANCE_COL, attendanceColumn};
 
                 String orderBy = AttendanceEntry.ROLL_NO_COL + " ASC";
 
                 currentTableCursor = db.query(ATTENDANCE_TABLE, attendanceProjection, null,
                         null, null, null, orderBy);
 
-
                 attendanceStatesList = new ArrayList<Integer>();
+
+                //get total Attendance of all the students
+                int totalAttendanceIndex = currentTableCursor.getColumnIndexOrThrow(
+                        AttendanceEntry.TOTAL_ATTENDANCE_COL);
+                int currentTotalAttendance;
+                totalAttendanceList = new ArrayList<Integer>();
+
+                currentTableCursor.moveToFirst();
                 for (int i = 0; i < currentTableCursor.getCount(); i++) {
-                    // initializes all items value with their existing attendanceState
+                    // initializes all items value with 0
                     attendanceStatesList.add(i, 0);
+
+                    //initializes array with existing total attendance count
+                    currentTotalAttendance = currentTableCursor.getInt(totalAttendanceIndex);
+                    totalAttendanceList.add(i, currentTotalAttendance);
+
+                    currentTableCursor.moveToNext();
                 }
                 takeAttendanceAdapter = new TakeAttendanceAdapter(this, currentTableCursor,
-                        ATTENDANCE_TABLE, attendanceColumn, attendanceStatesList);
+                        ATTENDANCE_TABLE, attendanceColumn, attendanceStatesList,
+                        totalAttendanceList);
+
                 stdListView.setAdapter(takeAttendanceAdapter);
             } else {
                 Toast.makeText(this, "Something went wrong.",
@@ -237,13 +277,13 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 + AttendanceEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + AttendanceEntry.NAME_COL + " TEXT NOT NULL, "
                 + AttendanceEntry.ROLL_NO_COL + " TEXT NOT NULL UNIQUE, "
-                + AttendanceEntry.TOTAL_ATTENDANCE_COL + " INTEGER)";
+                + AttendanceEntry.TOTAL_ATTENDANCE_COL + " INTEGER DEFAULT 0)";
 
         try {
             db.execSQL(CREATE_NEW_TABLE);
-        } catch(android.database.sqlite.SQLiteException e) {
+        } catch (android.database.sqlite.SQLiteException e) {
 
-            Log.e("TakeAttendanceActivity","Table Already Exists",e);
+            Log.e("TakeAttendanceActivity", "Table Already Exists", e);
         }
 
 
@@ -348,7 +388,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.done_take_attendance:
 
-                updateAttendanceStates();
+                updateAttendanceChanges();
 
                 updateAttendanceRecord();
 
@@ -358,7 +398,7 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, intent);
                 finish();
 
-            case android.R.id.home :
+            case android.R.id.home:
                 updateAttendanceRecord();
                 setResult(Activity.RESULT_CANCELED);
                 finish();
@@ -367,11 +407,14 @@ public class TakeAttendanceActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateAttendanceStates() {
-        ContentValues attendanceStateValues;
+    private void updateAttendanceChanges() {
+        ContentValues newValues;
         int attendanceState;
+        int totalAttendance;
+
         String attendanceColumn = TakeAttendanceAdapter.getAttendanceColumn();
         String attendanceTable = TakeAttendanceAdapter.getAttendanceTableName();
+
         if (currentTableCursor.moveToFirst()) {
             currentTableCursor.moveToFirst();
             int idIndex = currentTableCursor.getColumnIndex(AttendanceEntry._ID);
@@ -380,11 +423,14 @@ public class TakeAttendanceActivity extends AppCompatActivity {
 
                 currentId = String.valueOf(currentTableCursor.getInt(idIndex));
                 attendanceState = TakeAttendanceAdapter.getAttendanceState(i);
+                totalAttendance = TakeAttendanceAdapter.getTotalAttendance(i);
 
-                attendanceStateValues = new ContentValues();
-                attendanceStateValues.put(attendanceColumn, attendanceState);
+                newValues = new ContentValues();
+                newValues.put(attendanceColumn, attendanceState);
+                newValues.put(AttendanceEntry.TOTAL_ATTENDANCE_COL, totalAttendance);
 
-                db.update(attendanceTable, attendanceStateValues,
+
+                db.update(attendanceTable, newValues,
                         AttendanceEntry._ID + "=?", new String[]{currentId});
                 currentTableCursor.moveToNext();
             }
